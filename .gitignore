@@ -1,7 +1,6 @@
-./build/cmake
 .*.swp
 .*.swo
 .DS_Store
-gmon.out
-session.vim
 tmp
+.stack-work/
+*~
