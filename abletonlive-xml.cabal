@@ -14,7 +14,7 @@ bug-reports:    https://github.com/karamellpelle/abletonlive-xml/issues
 author:         Carl Joachim Svenn  
 maintainer:     karamellpelle@hotmail.com
 copyright:      2019 Carl Joachim Svenn
-license:        BSD3
+license:        GPL-3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
