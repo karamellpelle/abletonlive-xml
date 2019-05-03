@@ -1,7 +1,7 @@
 name:                abletonlive-xml
 version:             0.1.0.0
 github:              "karamellpelle/abletonlive-xml"
-license:             BSD3
+license:             GPL-3
 author:              "Carl Joachim Svenn"
 maintainer:          "karamellpelle@hotmail.com"
 copyright:           "2019 Carl Joachim Svenn"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/abletonlive-xml#readme>
+description:         Please see the README on GitHub at <https://github.com/karamellpelle/abletonlive-xml#readme>
 
 dependencies:
 - base >= 4.7 && < 5
