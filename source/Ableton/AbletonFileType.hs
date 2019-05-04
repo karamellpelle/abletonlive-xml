@@ -38,6 +38,7 @@ data AbletonFileType =
     FileAMXD | -- ^ max for Live
     FileASD | -- ^ warp analysis
     FileASX   -- ^ skin file
+    deriving (Show)
     
 
 --------------------------------------------------------------------------------

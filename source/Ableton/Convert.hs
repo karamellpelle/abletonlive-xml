@@ -16,10 +16,18 @@
 -- You should have received a copy of the GNU General Public License
 -- along with grid.  If not, see <http://www.gnu.org/licenses/>.
 --
+--{-# LANGUAGE TypeSynonymInstances #-}
+--{-# LANGUAGE FlexibleInstances #-}
 module Ableton.Convert
   (
-    toAbletonFile,
-    toAbletonXML,
+    ModifyPath (..),
+    changeRoot,
+    changeBaseName,
+    
+    ToAbletonFile (..),
+    ToAbletonXML (..),
+
+
   ) where
 
 import Codec.Compression.GZip as GZip
@@ -47,7 +55,6 @@ instance ModifyPath AbletonXML where
     modifyPath f axml = 
         axml { abletonxmlPath = f $ abletonxmlPath axml }
 
--- FIXME: add to top {-# LANGUAGE TypeSynonymInstances #-}
 --instance ModifyPath FilePath where
 --    modifyPath f = f
 
@@ -69,7 +76,10 @@ changeRoot root root' = modifyPath helper
               Just path' -> root' </> path'
               Nothing    -> path
 
-
+changeBaseName :: ModifyPath a => String -> a -> a
+changeBaseName name = modifyPath helper
+    where
+      helper = \path -> replaceBaseName path name
 
 
 --------------------------------------------------------------------------------
