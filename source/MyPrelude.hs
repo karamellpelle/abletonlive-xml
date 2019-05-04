@@ -20,7 +20,7 @@ module MyPrelude
   (
     UInt,
 
-    io,
+    --io,
     --module Data.Monoid,
     --module Control.Monad, 
 
@@ -28,6 +28,7 @@ module MyPrelude
 
 --import Data.Monoid
 --import Control.Monad
+--import Control.Monad.Trans
 
 
 --------------------------------------------------------------------------------
@@ -44,9 +45,9 @@ type UInt = Word
 
 
 --------------------------------------------------------------------------------
---  
+--  Monad transformers
 
 -- | liftIO 
-io :: MonadIO m => IO a -> m a 
-io = liftIO
+--io :: MonadIO m => IO a -> m a 
+--io = liftIO
 

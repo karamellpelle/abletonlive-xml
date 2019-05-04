@@ -25,8 +25,12 @@ module Ableton.Convert
 import Codec.Compression.GZip as GZip
 import qualified Data.ByteString.Lazy as BS
 import System.EasyFile
+import Data.List
+import Data.Maybe
 
 import Ableton.AbletonFileType
+import Ableton.AbletonFile
+import Ableton.AbletonXML
 
 --------------------------------------------------------------------------------
 --  modify path
@@ -43,8 +47,9 @@ instance ModifyPath AbletonXML where
     modifyPath f axml = 
         axml { abletonxmlPath = f $ abletonxmlPath axml }
 
-instance ModifyPath FilePath where
-    modifyPath f = f
+-- FIXME: add to top {-# LANGUAGE TypeSynonymInstances #-}
+--instance ModifyPath FilePath where
+--    modifyPath f = f
 
 
 
@@ -79,11 +84,11 @@ class ToAbletonFile a where
 
 -- | `AbletonFile -> AbletonFile`
 instance ToAbletonFile AbletonFile where
-    toAbletonfFile = id
+    toAbletonFile = id
 
 -- | `AbletonXML -> AbletonFile`
 instance ToAbletonFile AbletonXML where
-    toAbletonfFile axml = 
+    toAbletonFile axml = 
         AbletonFile
         { 
             abletonfilePath = changePath $ abletonxmlPath axml,
@@ -116,8 +121,8 @@ instance ToAbletonXML AbletonFile where
     toAbletonXML afile = 
         AbletonXML
         {
-            abletonxmlPath = changePath $ abletonfilePath afile
-            abletonxmlContent =  GZip.decompress $ abletonfileContent afile,
+            abletonxmlPath = changePath $ abletonfilePath afile,
+            abletonxmlContent =  GZip.decompress $ abletonfileContent afile
         }
         where
           changePath path =

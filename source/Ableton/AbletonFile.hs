@@ -21,8 +21,10 @@ module Ableton.AbletonFile
     AbletonFile (..),
   ) where
 
-import Ableton.AbletonFileType
 import MyPrelude
+
+import Ableton.AbletonFileType
+import qualified Data.ByteString.Lazy as BS
 
 
 data AbletonFile = 
@@ -30,7 +32,7 @@ data AbletonFile =
     {
         abletonfilePath :: FilePath,
         abletonfileType :: AbletonFileType,
-        abletonfileContent :: ByteString
+        abletonfileContent :: BS.ByteString
     }
 
 

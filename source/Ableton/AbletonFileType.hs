@@ -19,7 +19,7 @@
 module Ableton.AbletonFileType
   (
     AbletonFileType (..),
-    extensionToAbeltonFileType,
+    extensionToAbletonFileType,
     abletonfiletypeToExtension
   ) where
 
@@ -43,8 +43,8 @@ data AbletonFileType =
 --------------------------------------------------------------------------------
 --  
 
-extensionToAbeltonFileType :: String -> Maybe AbletonFileType
-extensionToAbeltonFileType ext = case fmap toLower ext of -- make sure case does not matter
+extensionToAbletonFileType :: String -> Maybe AbletonFileType
+extensionToAbletonFileType ext = case fmap toLower ext of -- make sure case does not matter
       ".adg" -> Just FileADG 
       ".agr" -> Just FileAGR
       ".adv" -> Just FileADV

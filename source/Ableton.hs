@@ -24,6 +24,14 @@ module Ableton
     writeAbletonFile
   ) where
 
+import qualified Data.ByteString.Lazy as BS
+import System.EasyFile
+import Data.Maybe
+
+import Ableton.AbletonFileType
+import Ableton.AbletonFile
+import Ableton.AbletonXML
+import Ableton.Convert
 --------------------------------------------------------------------------------
 --  read & write AbletonXML
 
@@ -40,7 +48,7 @@ readAbletonXML path = do
     
 
 writeAbletonXML :: AbletonXML -> IO FilePath
-writeAbletonXML axml =
+writeAbletonXML axml = do
     BS.writeFile (abletonxmlPath axml) $ abletonxmlContent axml
     return $ abletonxmlPath axml
 
@@ -52,14 +60,13 @@ writeAbletonXML axml =
 readAbletonFile :: FilePath -> IO AbletonFile
 readAbletonFile path = do
     content <- BS.readFile path
-    return $  AbletonXML
+    return $  AbletonFile
               {
                 abletonfilePath = path,
                 abletonfileType = fromJust $ extensionToAbletonFileType $ takeExtensions path,
                 abletonfileContent = content
               }
 
-    fmap toAbletonXML $ BS.readFile path
 
 writeAbletonFile :: AbletonFile -> IO FilePath
 writeAbletonFile afile = do
@@ -68,12 +75,14 @@ writeAbletonFile afile = do
     
 
 
-copyToAbletonFile :: FilePath -> IO FilePath
-copyToAbletonFile path dir = do
-    when (isAbletonFile path) $ 
-    when (isAbletonXML path) $ 
+--copyToAbletonFile :: FilePath -> IO FilePath
+--copyToAbletonFile path dir = do
+--    undefined
+    --when (isAbletonFile path) $ 
+    --when (isAbletonXML path) $ 
     -- read file type
 
+{-
 writeAbletonXML =<< (fmap toAbletonXML) readAbletonXML
 
 
@@ -83,3 +92,4 @@ writeAbletonXML =<< (fmap toAbletonXML) readAbletonXML
 readAbletonXML > toAbletonFile > writeAbletonFile
 
 --changeRoot "/a/share" "/b/myableton" $ toAbletonFile axml
+-}

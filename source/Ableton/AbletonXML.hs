@@ -21,12 +21,13 @@ module Ableton.AbletonXML
     AbletonXML (..),
   ) where
 
+import qualified Data.ByteString.Lazy as BS
 
 
 data AbletonXML = 
     AbletonXML
     {
         abletonxmlPath :: FilePath,
-        abletonxmlContent :: ByteString
+        abletonxmlContent :: BS.ByteString
     }
 
