@@ -19,20 +19,88 @@
 module Ableton.AbletonFile
   (
     AbletonFile (..),
+
+    extToAbletonData,
+    abletondataToExt,
+
+    changeAbletonFilePath,
+    changeAbletonFileRoot,
+    changeAbletonFileBaseName,
+
   ) where
 
 import MyPrelude
+import System.EasyFile
+import Data.Char
 
-import Ableton.AbletonFileType
-import qualified Data.ByteString.Lazy as BS
+import Ableton.AbletonData
 
 
-data AbletonFile = 
+
+data AbletonFile a = 
     AbletonFile
     {
         abletonfilePath :: FilePath,
-        abletonfileType :: AbletonFileType,
-        abletonfileContent :: BS.ByteString
+        abletonfile :: a
     }
 
+
+--------------------------------------------------------------------------------
+--  path operations
+
+changeAbletonFilePath :: (FilePath -> FilePath) -> AbletonFile a -> AbletonFile a
+changeAbletonFilePath f file =
+    file { abletonfilePath = f $ abletonfilePath file }
+
+
+-- | change root folder, for example
+--
+--      changeAbletonFileRoot "xml/" "../" "xml/Packs/HiTech/Bass/CoolB.adg.xml" == "../Packs/HiTech/Bass/CoolB.adg.xml"
+--
+--      changeAbletonFileRoot "" "xml/" "Packs/HiTech/Bass/CoolB.adg" == "xml/Packs/HiTech/Bass/CoolB.adg"
+--
+changeAbletonFileRoot :: FilePath -> FilePath -> AbletonFile a -> AbletonFile a
+changeAbletonFileRoot root root' = 
+    changeAbletonFilePath $ \path ->
+        case stripPrefix root path of
+            Just path' -> root' </> path'
+            Nothing    -> path
+        -- ^ TODO: work with normalized paths. 
+        --         and think thourg what happens if a path is absolute, cf. semantics of '</>'
+
+changeAbletonFileBaseName :: String -> AbletonFile a -> AbletonFile a
+changeAbletonFileBaseName name = 
+    changeAbletonFilePath $ \path -> replaceBaseName path name
+
+    
+--------------------------------------------------------------------------------
+--  
+
+extToAbletonData :: String -> Maybe AbletonDataType
+extToAbletonData ext = case fmap toLower ext of -- uppercase == lowercase
+      ".adg" -> Just FileADG 
+      ".agr" -> Just FileAGR
+      ".adv" -> Just FileADV
+      ".alc" -> Just FileALC
+      ".als" -> Just FileALS
+      ".alp" -> Just FileALP
+      ".ams" -> Just FileAMS
+      ".amxd" -> Just FileAMXD
+      ".asd" -> Just FileASD
+      ".asx" -> Just FileASX
+      _     -> Nothing
+
+abletondataToExt :: AbletonDataType -> String 
+abletondataToExt t = case t of 
+    FileADG -> ".adg"
+    FileAGR -> ".agr"
+    FileADV -> ".adv"
+    FileALC -> ".alc"
+    FileALS -> ".als"
+    FileALP -> ".alp"
+    FileAMS -> ".ams"
+    FileAMXD -> ".amxd"
+    FileASD -> ".asd"
+    FileASX -> ".asx"
+    
 

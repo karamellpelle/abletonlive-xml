@@ -22,12 +22,36 @@ module Ableton.AbletonXML
   ) where
 
 import qualified Data.ByteString.Lazy as BS
+import Ableton.AbletonData
 
 
 data AbletonXML = 
     AbletonXML
     {
-        abletonxmlPath :: FilePath,
         abletonxmlContent :: BS.ByteString
     }
 
+--------------------------------------------------------------------------------
+--  peek AbletonBinType from XML data
+
+instance AbletonData AbletonXML where
+    abletondataType axml = 
+        undefined
+        -- ^ FIXME: look at XML definition
+{-
+
+    case abletonxmlType axml of
+    uKk
+        FileADG | -- ^ device group
+        FileAGR | -- ^ groove file
+        FileADV | -- ^ device preset
+        FileALC | -- ^ Live clip
+        FileALS | -- ^ Live set
+        FileALP | -- ^ Live pack
+        FileAMS | -- ^ meta sound
+        FileAMXD | -- ^ max for Live
+        FileASD | -- ^ warp analysis
+        FileASX   -- ^ skin file
+        
+    undefined
+-}

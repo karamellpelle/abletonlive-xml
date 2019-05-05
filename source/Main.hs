@@ -18,7 +18,9 @@
 --
 module Main where
 
-import Ableton.AbletonFile
+
+import Ableton
+import Ableton.AbletonBin
 import Ableton.AbletonXML
 
 

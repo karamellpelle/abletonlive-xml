@@ -18,61 +18,59 @@
 --
 module Ableton
   (
-    readAbletonXML,
-    writeAbletonXML,
-    readAbletonFile,
-    writeAbletonFile
+    readfileAbletonXML,
+    writefileAbletonXML,
+
+    readfileAbletonBin,
+    writefileAbletonBin
   ) where
 
 import qualified Data.ByteString.Lazy as BS
 import System.EasyFile
 import Data.Maybe
 
-import Ableton.AbletonFileType
+import Ableton.AbletonData
 import Ableton.AbletonFile
 import Ableton.AbletonXML
+import Ableton.AbletonBin
 import Ableton.Convert
 --------------------------------------------------------------------------------
 --  read & write AbletonXML
 
 
 -- | no verification of file content; it assumes correct XML definition
-readAbletonXML :: FilePath -> IO AbletonXML
-readAbletonXML path = do
+readfileAbletonXML :: FilePath -> IO (AbletonFile AbletonXML)
+readfileAbletonXML path = do
     content <- BS.readFile path
-    return $ AbletonXML
-             {
-                abletonxmlPath = path,
-                abletonxmlContent = content
-             }
+    return $ AbletonFile path $ AbletonXML { abletonxmlContent = content }
     
 
-writeAbletonXML :: AbletonXML -> IO FilePath
-writeAbletonXML axml = do
-    BS.writeFile (abletonxmlPath axml) $ abletonxmlContent axml
-    return $ abletonxmlPath axml
+writefileAbletonXML :: AbletonFile AbletonXML -> IO FilePath
+writefileAbletonXML file = do
+    BS.writeFile (abletonfilePath file) $ abletonxmlContent $ abletonfile file
+    return $ abletonfilePath file
 
 
 --------------------------------------------------------------------------------
 --  read & write AbletonFile
 
 -- | no verification of file content; it assumes correct extension
-readAbletonFile :: FilePath -> IO AbletonFile
-readAbletonFile path = do
+
+readfileAbletonBin :: FilePath -> IO (AbletonFile AbletonBin)
+readfileAbletonBin path = do
     content <- BS.readFile path
-    return $  AbletonFile
-              {
-                abletonfilePath = path,
-                abletonfileType = fromJust $ extensionToAbletonFileType $ takeExtensions path,
-                abletonfileContent = content
-              }
+    return $ AbletonFile path $ AbletonBin
+                                {
+                                    abletonbinType = fromJust $ extToAbletonData $ takeExtensions path, -- no verification done!
+                                    abletonbinContent = content
+                                }
 
 
-writeAbletonFile :: AbletonFile -> IO FilePath
-writeAbletonFile afile = do
-    BS.writeFile (abletonfilePath afile) $ abletonfileContent afile
-    return $ abletonfilePath afile
-    
+writefileAbletonBin :: (AbletonFile AbletonBin) -> IO FilePath
+writefileAbletonBin file = do
+    BS.writeFile (abletonfilePath file) $ abletonbinContent $ abletonfile file
+    return $ abletonfilePath file
+
 
 
 --copyToAbletonFile :: FilePath -> IO FilePath

@@ -20,11 +20,7 @@
 --{-# LANGUAGE FlexibleInstances #-}
 module Ableton.Convert
   (
-    ModifyPath (..),
-    changeRoot,
-    changeBaseName,
-    
-    ToAbletonFile (..),
+    ToAbletonBin (..),
     ToAbletonXML (..),
 
 
@@ -32,134 +28,72 @@ module Ableton.Convert
 
 import Codec.Compression.GZip as GZip
 import qualified Data.ByteString.Lazy as BS
-import System.EasyFile
 import Data.List
 import Data.Maybe
 
-import Ableton.AbletonFileType
-import Ableton.AbletonFile
+import Ableton.AbletonData
+import Ableton.AbletonBin
 import Ableton.AbletonXML
-
---------------------------------------------------------------------------------
---  modify path
-
-class ModifyPath a where
-    modifyPath :: (FilePath -> FilePath) -> a -> a
-    -- ^ 
-
-instance ModifyPath AbletonFile where
-    modifyPath f afile = 
-        afile { abletonfilePath = f $ abletonfilePath afile }
-
-instance ModifyPath AbletonXML where
-    modifyPath f axml = 
-        axml { abletonxmlPath = f $ abletonxmlPath axml }
-
---instance ModifyPath FilePath where
---    modifyPath f = f
-
-
-
--- | change root folder, for example
---
---      changeRoot "xml/" "../" "xml/Packs/HiTech/Bass/CoolB.adg.xml" == "../Packs/HiTech/Bass/CoolB.adg.xml"
---
---      changeRoot "" "xml/" "Packs/HiTech/Bass/CoolB.adg" == "xml/Packs/HiTech/Bass/CoolB.adg"
---
--- | TODO: work with normalized paths. 
---         and think thourg what happens if a path is absolute, cf. semantics of '</>'
-changeRoot :: ModifyPath a => FilePath -> FilePath -> a -> a
-changeRoot root root' = modifyPath helper
-    where
-      helper = \path -> 
-          case stripPrefix root path of
-              Just path' -> root' </> path'
-              Nothing    -> path
-
-changeBaseName :: ModifyPath a => String -> a -> a
-changeBaseName name = modifyPath helper
-    where
-      helper = \path -> replaceBaseName path name
+import Ableton.AbletonFile
 
 
 --------------------------------------------------------------------------------
---  ToAbletonFile
+--  ToAbletonBin
 
--- | convert a type (typically file data) to an `AbletonFile`
+-- | convert a type  to an `AbletonBin`
 --   TODO: Maybe
-class ToAbletonFile a where
-    toAbletonFile :: a -> AbletonFile
+class ToAbletonBin a where
+    toAbletonBin :: a -> AbletonBin
 
 
 
--- | `AbletonFile -> AbletonFile`
-instance ToAbletonFile AbletonFile where
-    toAbletonFile = id
+-- | `AbletonBin -> AbletonBin`
+instance ToAbletonBin AbletonBin where
+    toAbletonBin = id
 
--- | `AbletonXML -> AbletonFile`
-instance ToAbletonFile AbletonXML where
-    toAbletonFile axml = 
-        AbletonFile
+
+-- | `AbletonXML -> AbletonBin`
+instance ToAbletonBin AbletonXML where
+    toAbletonBin axml = 
+        AbletonBin
         { 
-            abletonfilePath = changePath $ abletonxmlPath axml,
-            abletonfileType = filetype,
-            abletonfileContent = GZip.compress $ abletonxmlContent axml -- use compressWith for control over compression parameters
+            abletonbinType = abletondataType axml,-- assuming valid XML, no verificationD of valid XML
+            abletonbinContent = GZip.compress $ abletonxmlContent axml -- use compressWith for control over compression parameters
         }
-        where
-          filetype = fromJust $ abletonxmlType axml -- assuming valid XML, no verificationD of valid XML
-          changePath path = 
-              let (path', ext) = splitExtensions path
-              in  path' <.> abletonfiletypeToExtension filetype
 
 
+instance (ToAbletonBin a) => ToAbletonBin (AbletonFile a) where
+    toAbletonBin file = toAbletonBin $ abletonfile file
 
 
+          --filetype = fromJust $ abletonxmlType axml 
+          --changePath path = 
+          --    let (path', ext) = splitExtensions path
+          --    in  path' <.> abletonbintypeToExtension filetype
 --------------------------------------------------------------------------------
 --  ToAbletonXML
 
--- | convert a type (typically file data) to an `AbletonXML`
+-- | convert a type  to an `AbletonXML`
 class ToAbletonXML a where
     toAbletonXML :: a -> AbletonXML
 
 
--- | `AbletonFile -> AbletonXML`
+
+-- | `AbletonXML -> AbletonXML`
 instance ToAbletonXML AbletonXML where
     toAbletonXML = id
 
--- | `AbletonFile -> AbletonXML`
-instance ToAbletonXML AbletonFile where
-    toAbletonXML afile = 
+-- | `AbletonBin -> AbletonXML`
+instance ToAbletonXML AbletonBin where
+    toAbletonXML abin = 
         AbletonXML
         {
-            abletonxmlPath = changePath $ abletonfilePath afile,
-            abletonxmlContent =  GZip.decompress $ abletonfileContent afile
+            abletonxmlContent =  GZip.decompress $ abletonbinContent abin
         }
-        where
-          changePath path =
-              addExtension path ".xml" -- just add .xml to current extension, i.e. file.adg -> file.adg.xml
 
+instance (ToAbletonXML a) => ToAbletonXML (AbletonFile a) where
+    toAbletonXML file = toAbletonXML $ abletonfile file
 
---------------------------------------------------------------------------------
---  peek AbletonFileType from XML data
-
-abletonxmlType :: AbletonXML -> Maybe AbletonFileType
-abletonxmlType xml = 
-    undefined
-{-
-
-    case abletonxmlType axml of
-    uKk
-        FileADG | -- ^ device group
-        FileAGR | -- ^ groove file
-        FileADV | -- ^ device preset
-        FileALC | -- ^ Live clip
-        FileALS | -- ^ Live set
-        FileALP | -- ^ Live pack
-        FileAMS | -- ^ meta sound
-        FileAMXD | -- ^ max for Live
-        FileASD | -- ^ warp analysis
-        FileASX   -- ^ skin file
-        
-    undefined
--}
--- ^ FIXME: look at XML definition
+        --where
+        --  changeExt path =
+        --      addExtension path ".xml" -- adding .xml to current extension, i.e. file.adg -> file.adg.xml
