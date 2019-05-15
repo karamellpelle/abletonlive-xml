@@ -27,6 +27,7 @@ import Ableton.AbletonData
 import qualified Data.ByteString.Lazy as BS -- lazy because of GZip
 
 
+-- | data holding binary data
 data AbletonBin = 
     AbletonBin
     {

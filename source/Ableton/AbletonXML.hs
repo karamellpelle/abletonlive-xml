@@ -22,9 +22,12 @@ module Ableton.AbletonXML
   ) where
 
 import qualified Data.ByteString.Lazy as BS
+import Text.XML.Light
+
 import Ableton.AbletonData
 
-
+-- | date holding XML data
+--   TODO: abletonbinType instead of reading XML structure (XML definition looks same for Clips and Sets)
 data AbletonXML = 
     AbletonXML
     {
@@ -36,7 +39,14 @@ data AbletonXML =
 
 instance AbletonData AbletonXML where
     abletondataType axml = 
-        undefined
+        case parseXMLDoc (abletonxmlContent axml) of
+            Nothing   -> error "XML is not AbletonData"
+            Just doc  -> undefined
+
+--Ableton > InstrumentVector
+--Ableton > LiveSet
+--Ableton > GroupDevicePreset
+
         -- ^ FIXME: look at XML definition
 {-
 

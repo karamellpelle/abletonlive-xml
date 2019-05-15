@@ -25,7 +25,8 @@ dependencies:
 - zlib
 - bytestring
 - easy-file
-#- mtl
+- xml
+#- transformers
 
 #library:
 #  source-dirs: src

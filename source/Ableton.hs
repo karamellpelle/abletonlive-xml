@@ -22,7 +22,9 @@ module Ableton
     writefileAbletonXML,
 
     readfileAbletonBin,
-    writefileAbletonBin
+    writefileAbletonBin,
+
+    createXML, -- tmp
   ) where
 
 import qualified Data.ByteString.Lazy as BS
@@ -37,8 +39,16 @@ import Ableton.Convert
 --------------------------------------------------------------------------------
 --  read & write AbletonXML
 
+-- | TODO: 
+--readfileAbleton :: (ToAbletonFile a) => FilePath -> IO (AbletonFile a)
+--readfileAbleton path = do
+--  
+--
+--readfileAbleton file :: FilePath -> IO (AbletonFile AbletonXML)
+    
 
 -- | no verification of file content; it assumes correct XML definition
+--   TODO: verify by filepath extension?
 readfileAbletonXML :: FilePath -> IO (AbletonFile AbletonXML)
 readfileAbletonXML path = do
     content <- BS.readFile path
@@ -72,6 +82,14 @@ writefileAbletonBin file = do
     return $ abletonfilePath file
 
 
+createXML :: FilePath -> IO FilePath
+createXML path = do
+    file <- readfileAbletonBin path
+    writefileAbletonXML $ changeExtXML $ AbletonFile path (toAbletonXML file)
+
+        where
+          changeExtXML = changeAbletonFilePath $ \path -> addExtension path ".xml"
+              --addExtension path ".xml" -- adding .xml to current extension, i.e. file.adg -> file.adg.xml
 
 --copyToAbletonFile :: FilePath -> IO FilePath
 --copyToAbletonFile path dir = do

@@ -97,3 +97,31 @@ instance (ToAbletonXML a) => ToAbletonXML (AbletonFile a) where
         --where
         --  changeExt path =
         --      addExtension path ".xml" -- adding .xml to current extension, i.e. file.adg -> file.adg.xml
+        --
+
+--------------------------------------------------------------------------------
+-- Convert an AbletonFile to AbletonFile AbletonXML
+
+class  ToAbletonFileXML where
+    toAbletonFileXML :: File a -> AbletonFile AbletonXML
+
+instance (ToAbletonXML a) => ToAbletonFileXML (AbletonFile a)
+    toAbletonFileXML file@(File a) = 
+        {   
+            abletonfilePath = abletonfilePath file,
+            abletonfile = abletonfile a
+        }
+    
+--------------------------------------------------------------------------------
+-- Convert an AbletonFile to AbletonFile AbletonBin
+
+class  ToAbletonFileBin where
+    toAbletonFileBin :: File a -> AbletonFile AbletonBin
+
+instance (ToAbletonBin a) => ToAbletonFileBin (AbletonFile a)
+    toAbletonFileBin file@(File a) = 
+        {   
+            abletonfilePath = abletonfilePath file,
+            abletonfile = abletonfile a
+        }
+    
