@@ -1,3 +1,5 @@
+# control
+put 'read/writeAbletonFileXXX' into AppM monad to handle errors & error messages
 # TODO
 * peek ableton file type from xml data
 

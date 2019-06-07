@@ -93,6 +93,8 @@ instance ToAbletonXML AbletonBin where
 instance (ToAbletonXML a) => ToAbletonXML (AbletonFile a) where
     toAbletonXML file = toAbletonXML $ abletonfileContent file
 
+
+
 {-
 --------------------------------------------------------------------------------
 -- Convert an AbletonFile to AbletonFile AbletonXML

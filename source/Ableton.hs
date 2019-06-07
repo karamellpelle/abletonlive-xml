@@ -34,6 +34,7 @@ module Ableton
 
 import qualified Data.ByteString.Lazy as BS
 import System.EasyFile
+import Control.Exception
 import Data.Maybe
 import Data.Char
 
@@ -60,6 +61,7 @@ import Ableton.Convert
 
 -- | no verification of file dat; it assumes correct XML definition
 --   TODO: verify by filepath extension?
+--
 readAbletonFileXML :: FilePath -> IO (AbletonFile AbletonXML)
 readAbletonFileXML path = do
     dat <- BS.readFile path
@@ -76,15 +78,14 @@ writeAbletonFileXML file = do
 --  read & write AbletonFile
 
 -- | no verification of file dat; it assumes correct extension
-
 readAbletonFileBin :: FilePath -> IO (AbletonFile AbletonBin)
 readAbletonFileBin path = do
     dat <- BS.readFile path
     return $ AbletonFile path $ AbletonBin
-                                {
-                                    abletonbinType = fromJust $ extToAbletonData $ takeExtensions path, -- no verification done!
-                                    abletonbinData = dat
-                                }
+             {
+                 abletonbinType = fromJust $ extToAbletonData $ takeExtensions path, -- TODO: do verification, not isJust!!
+                 abletonbinData = dat
+             }
 
 
 writeAbletonFileBin :: (AbletonFile AbletonBin) -> IO FilePath
@@ -149,57 +150,4 @@ abletondataToExt t = case t of
     FileASD -> ".asd"
     FileASX -> ".asx"
     
-
---------------------------------------------------------------------------------
---  find Ableton files
-
-{-
-
--- | find Ableton XML files based on a list of files and folders
-findFilePathsAbletonXML :: [FilePath] -> IO [FilePath]
-findFilePathsAbletonXML = findFilePaths filepathIsAbletonXML
-
-findFilePathsAbletonBin :: [FilePath] -> IO [FilePath]
-findFilePathsAbletonBin = findFilePaths filepathIsAbletonBin
-
-findFilePaths :: (FilePath -> Bool) -> [FilePath] -> IO [FilePath]
-findFilePaths pred paths =
-    fmap concat
-    case path of 
-        folder -> mapM findFilePathsXML (++) [] foldercontent
-        file  -> [file]
-            case extension of 
-                ".xml"  -> path
-                _ -> []
-        _ -> return [] -- should not happen
-
-readAbletonXMLs:: [FilePath] -> IO (AbletonFile AbletonXML)
-readAbletonXMLs = findFilePathsXML >>= readAbletonFileXMLS
-
-
-findFilePathsXML :: [] 
-    files <- case fileargs of 
-        [] -> findAbletonFileBin
-class ToAbletonXML a where
-    toAbletonXML :: a -> Maybe AbletonXML 
--}
-
---copyToAbletonFile :: FilePath -> IO FilePath
---copyToAbletonFile path dir = do
---    undefined
-    --when (isAbletonFile path) $ 
-    --when (isAbletonXML path) $ 
-    -- read file type
-
-{-
-writeAbletonXML =<< (fmap toAbletonXML) readAbletonXML
-
-
-    (fmap toAbletonFile $ readAbletonXML path) >>= writeAbletonFile
-    
-    (a -> b) -> (a -> m a) -> a -> m b
-readAbletonXML > toAbletonFile > writeAbletonFile
-
---changeRoot "/a/share" "/b/myableton" $ toAbletonFile axml
--}
 
