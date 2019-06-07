@@ -26,20 +26,20 @@ import Text.XML.Light
 
 import Ableton.AbletonData
 
--- | date holding XML data
+-- | data holding XML data
 --   TODO: abletonbinType instead of reading XML structure (XML definition looks same for Clips and Sets)
 data AbletonXML = 
     AbletonXML
     {
-        abletonxmlContent :: BS.ByteString
+        abletonxmlData :: BS.ByteString
     }
 
 --------------------------------------------------------------------------------
---  peek AbletonBinType from XML data
+--  peek AbletonDataType from XML data
 
 instance AbletonData AbletonXML where
     abletondataType axml = 
-        case parseXMLDoc (abletonxmlContent axml) of
+        case parseXMLDoc (abletonxmlData axml) of
             Nothing   -> error "XML is not AbletonData"
             Just doc  -> undefined
 

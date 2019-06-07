@@ -20,9 +20,6 @@ module Ableton.AbletonFile
   (
     AbletonFile (..),
 
-    extToAbletonData,
-    abletondataToExt,
-
     changeAbletonFilePath,
     changeAbletonFileRoot,
     changeAbletonFileBaseName,
@@ -31,17 +28,17 @@ module Ableton.AbletonFile
 
 import MyPrelude
 import System.EasyFile
-import Data.Char
 
 import Ableton.AbletonData
 
 
 
+-- | use GADTs?
 data AbletonFile a = 
     AbletonFile
     {
         abletonfilePath :: FilePath,
-        abletonfile :: a
+        abletonfileContent :: a
     }
 
 
@@ -73,34 +70,3 @@ changeAbletonFileBaseName name =
     changeAbletonFilePath $ \path -> replaceBaseName path name
 
     
---------------------------------------------------------------------------------
---  
-
-extToAbletonData :: String -> Maybe AbletonDataType
-extToAbletonData ext = case fmap toLower ext of -- uppercase == lowercase
-      ".adg" -> Just FileADG 
-      ".agr" -> Just FileAGR
-      ".adv" -> Just FileADV
-      ".alc" -> Just FileALC
-      ".als" -> Just FileALS
-      ".alp" -> Just FileALP
-      ".ams" -> Just FileAMS
-      ".amxd" -> Just FileAMXD
-      ".asd" -> Just FileASD
-      ".asx" -> Just FileASX
-      _     -> Nothing
-
-abletondataToExt :: AbletonDataType -> String 
-abletondataToExt t = case t of 
-    FileADG -> ".adg"
-    FileAGR -> ".agr"
-    FileADV -> ".adv"
-    FileALC -> ".alc"
-    FileALS -> ".als"
-    FileALP -> ".alp"
-    FileAMS -> ".ams"
-    FileAMXD -> ".amxd"
-    FileASD -> ".asd"
-    FileASX -> ".asx"
-    
-

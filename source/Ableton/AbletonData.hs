@@ -23,7 +23,6 @@ module Ableton.AbletonData
 
   ) where
 
-import Data.Char
 
 
 -- | https://help.ableton.com/hc/en-us/articles/209769625-Live-specific-file-types-adg-als-alp-
@@ -41,6 +40,7 @@ data AbletonDataType =
     deriving (Show)
     
 
+-- | retrieve kind of Ableton data from type
 class AbletonData a where
     abletondataType :: a -> AbletonDataType
 

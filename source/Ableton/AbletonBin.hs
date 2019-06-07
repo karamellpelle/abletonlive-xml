@@ -32,7 +32,7 @@ data AbletonBin =
     AbletonBin
     {
         abletonbinType :: AbletonDataType,
-        abletonbinContent :: BS.ByteString
+        abletonbinData :: BS.ByteString
     }
 
 

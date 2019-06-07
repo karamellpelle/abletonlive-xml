@@ -58,12 +58,12 @@ instance ToAbletonBin AbletonXML where
         AbletonBin
         { 
             abletonbinType = abletondataType axml,-- assuming valid XML, no verificationD of valid XML
-            abletonbinContent = GZip.compress $ abletonxmlContent axml -- use compressWith for control over compression parameters
+            abletonbinData = GZip.compress $ abletonxmlData axml -- use compressWith for control over compression parameters
         }
 
 
 instance (ToAbletonBin a) => ToAbletonBin (AbletonFile a) where
-    toAbletonBin file = toAbletonBin $ abletonfile file
+    toAbletonBin file = toAbletonBin $ abletonfileContent file
 
 
           --filetype = fromJust $ abletonxmlType axml 
@@ -88,11 +88,11 @@ instance ToAbletonXML AbletonBin where
     toAbletonXML abin = 
         AbletonXML
         {
-            abletonxmlContent =  GZip.decompress $ abletonbinContent abin
+            abletonxmlData =  GZip.decompress $ abletonbinData abin
         }
 
 instance (ToAbletonXML a) => ToAbletonXML (AbletonFile a) where
-    toAbletonXML file = toAbletonXML $ abletonfile file
+    toAbletonXML file = toAbletonXML $ abletonfileContent file
 
         --where
         --  changeExt path =
@@ -102,26 +102,28 @@ instance (ToAbletonXML a) => ToAbletonXML (AbletonFile a) where
 --------------------------------------------------------------------------------
 -- Convert an AbletonFile to AbletonFile AbletonXML
 
-class  ToAbletonFileXML where
-    toAbletonFileXML :: File a -> AbletonFile AbletonXML
+class  ToAbletonFileXML a where
+    toAbletonFileXML :: AbletonFile a -> AbletonFile AbletonXML
 
-instance (ToAbletonXML a) => ToAbletonFileXML (AbletonFile a)
-    toAbletonFileXML file@(File a) = 
+instance (ToAbletonXML a) => ToAbletonFileXML (AbletonFile a) where
+    toAbletonFileXML (AbletonFile path a) =  
+        AbletonFile
         {   
-            abletonfilePath = abletonfilePath file,
-            abletonfile = abletonfile a
+            abletonfilePath = path,
+            abletonfileContent = toAbletonXML a
         }
     
 --------------------------------------------------------------------------------
 -- Convert an AbletonFile to AbletonFile AbletonBin
 
-class  ToAbletonFileBin where
-    toAbletonFileBin :: File a -> AbletonFile AbletonBin
+class  ToAbletonFileBin a where
+    toAbletonFileBin :: AbletonFile a -> AbletonFile AbletonBin
 
-instance (ToAbletonBin a) => ToAbletonFileBin (AbletonFile a)
-    toAbletonFileBin file@(File a) = 
+instance (ToAbletonBin a) => ToAbletonFileBin (AbletonFile a) where
+    toAbletonFileBin (AbletonFile path a) = 
+        AbletonFile
         {   
-            abletonfilePath = abletonfilePath file,
-            abletonfile = abletonfile a
+            abletonfilePath = path,
+            abletonfileContent = toAbletonBin a
         }
     
