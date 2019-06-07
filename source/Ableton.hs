@@ -24,13 +24,12 @@ module Ableton
 
 
     -- XML
-    readfileAbletonXML,
-    writefileAbletonXML,
+    readAbletonFileXML,
+    writeAbletonFileXML,
     -- Bin
     readAbletonFileBin,
     writeAbletonFileBin,
 
-    createXML, -- tmp
   ) where
 
 import qualified Data.ByteString.Lazy as BS
@@ -61,14 +60,14 @@ import Ableton.Convert
 
 -- | no verification of file dat; it assumes correct XML definition
 --   TODO: verify by filepath extension?
-readfileAbletonXML :: FilePath -> IO (AbletonFile AbletonXML)
-readfileAbletonXML path = do
+readAbletonFileXML :: FilePath -> IO (AbletonFile AbletonXML)
+readAbletonFileXML path = do
     dat <- BS.readFile path
     return $ AbletonFile path $ AbletonXML { abletonxmlData = dat }
     
 
-writefileAbletonXML :: AbletonFile AbletonXML -> IO FilePath
-writefileAbletonXML file = do
+writeAbletonFileXML :: AbletonFile AbletonXML -> IO FilePath
+writeAbletonFileXML file = do
     BS.writeFile (abletonfilePath file) $ abletonxmlData $ abletonfileContent file
     return $ abletonfilePath file
 
@@ -151,7 +150,6 @@ abletondataToExt t = case t of
     FileASX -> ".asx"
     
 
-
 --------------------------------------------------------------------------------
 --  find Ableton files
 
@@ -185,17 +183,6 @@ findFilePathsXML :: []
 class ToAbletonXML a where
     toAbletonXML :: a -> Maybe AbletonXML 
 -}
---------------------------------------------------------------------------------
---  
-
-createXML :: FilePath -> IO FilePath
-createXML path = do
-    file <- readAbletonFileBin path
-    writefileAbletonXML $ changeExtXML $ AbletonFile path (toAbletonXML file)
-
-        where
-          changeExtXML = changeAbletonFilePath $ \path -> addExtension path ".xml"
-              --addExtension path ".xml" -- adding .xml to current extension, i.e. file.adg -> file.adg.xml
 
 --copyToAbletonFile :: FilePath -> IO FilePath
 --copyToAbletonFile path dir = do

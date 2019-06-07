@@ -43,22 +43,23 @@ import Ableton.AbletonFile
 -- | convert a type  to an `AbletonBin`
 --   TODO: Maybe
 class ToAbletonBin a where
-    toAbletonBin :: a -> AbletonBin
+    toAbletonBin :: a -> Maybe AbletonBin
 
 
 
 -- | `AbletonBin -> AbletonBin`
 instance ToAbletonBin AbletonBin where
-    toAbletonBin = id
+    toAbletonBin = Just
 
 
 -- | `AbletonXML -> AbletonBin`
+--   thi application is based upon this function
 instance ToAbletonBin AbletonXML where
     toAbletonBin axml = 
-        AbletonBin
+        Just AbletonBin
         { 
-            abletonbinType = abletondataType axml,-- assuming valid XML, no verificationD of valid XML
-            abletonbinData = GZip.compress $ abletonxmlData axml -- use compressWith for control over compression parameters
+            abletonbinType = abletondataType axml,               -- assuming valid XML, no verificationD of valid XML
+            abletonbinData = GZip.compress $ abletonxmlData axml -- NOTE use 'compressWith' to control compression parameters
         }
 
 
@@ -66,39 +67,33 @@ instance (ToAbletonBin a) => ToAbletonBin (AbletonFile a) where
     toAbletonBin file = toAbletonBin $ abletonfileContent file
 
 
-          --filetype = fromJust $ abletonxmlType axml 
-          --changePath path = 
-          --    let (path', ext) = splitExtensions path
-          --    in  path' <.> abletonbintypeToExtension filetype
 --------------------------------------------------------------------------------
 --  ToAbletonXML
 
 -- | convert a type  to an `AbletonXML`
 class ToAbletonXML a where
-    toAbletonXML :: a -> AbletonXML
+    toAbletonXML :: a -> Maybe AbletonXML
 
 
 
 -- | `AbletonXML -> AbletonXML`
 instance ToAbletonXML AbletonXML where
-    toAbletonXML = id
+    toAbletonXML = Just
 
 -- | `AbletonBin -> AbletonXML`
+--   this application is based upon this function
 instance ToAbletonXML AbletonBin where
     toAbletonXML abin = 
-        AbletonXML
+        Just AbletonXML
         {
             abletonxmlData =  GZip.decompress $ abletonbinData abin
         }
 
+-- | file to AbletonXML 
 instance (ToAbletonXML a) => ToAbletonXML (AbletonFile a) where
     toAbletonXML file = toAbletonXML $ abletonfileContent file
 
-        --where
-        --  changeExt path =
-        --      addExtension path ".xml" -- adding .xml to current extension, i.e. file.adg -> file.adg.xml
-        --
-
+{-
 --------------------------------------------------------------------------------
 -- Convert an AbletonFile to AbletonFile AbletonXML
 
@@ -126,4 +121,4 @@ instance (ToAbletonBin a) => ToAbletonFileBin (AbletonFile a) where
             abletonfilePath = path,
             abletonfileContent = toAbletonBin a
         }
-    
+-}

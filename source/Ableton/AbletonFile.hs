@@ -20,6 +20,7 @@ module Ableton.AbletonFile
   (
     AbletonFile (..),
 
+    -- TODO: remove
     changeAbletonFilePath,
     changeAbletonFileRoot,
     changeAbletonFileBaseName,
