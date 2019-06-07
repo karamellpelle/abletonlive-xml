@@ -1,3 +1,8 @@
+module Find
+  (
+  ) where
+
+import MyPrelude
 --------------------------------------------------------------------------------
 --  find Ableton files
 

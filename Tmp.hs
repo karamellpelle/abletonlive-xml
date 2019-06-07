@@ -1,6 +1,6 @@
 import Ableton
-import Ableton.Convert
-import Ableton.AbletonFile
+import Files
+import Convert
 import System.EasyFile
 
 --------------------------------------------------------------------------------

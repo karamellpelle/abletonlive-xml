@@ -18,7 +18,7 @@
 --
 --{-# LANGUAGE TypeSynonymInstances #-}
 --{-# LANGUAGE FlexibleInstances #-}
-module Ableton.Convert
+module Convert
   (
     ToAbletonBin (..),
     ToAbletonXML (..),
@@ -95,32 +95,3 @@ instance (ToAbletonXML a) => ToAbletonXML (AbletonFile a) where
 
 
 
-{-
---------------------------------------------------------------------------------
--- Convert an AbletonFile to AbletonFile AbletonXML
-
-class  ToAbletonFileXML a where
-    toAbletonFileXML :: AbletonFile a -> AbletonFile AbletonXML
-
-instance (ToAbletonXML a) => ToAbletonFileXML (AbletonFile a) where
-    toAbletonFileXML (AbletonFile path a) =  
-        AbletonFile
-        {   
-            abletonfilePath = path,
-            abletonfileContent = toAbletonXML a
-        }
-    
---------------------------------------------------------------------------------
--- Convert an AbletonFile to AbletonFile AbletonBin
-
-class  ToAbletonFileBin a where
-    toAbletonFileBin :: AbletonFile a -> AbletonFile AbletonBin
-
-instance (ToAbletonBin a) => ToAbletonFileBin (AbletonFile a) where
-    toAbletonFileBin (AbletonFile path a) = 
-        AbletonFile
-        {   
-            abletonfilePath = path,
-            abletonfileContent = toAbletonBin a
-        }
--}
