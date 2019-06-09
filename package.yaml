@@ -22,14 +22,15 @@ description:         Please see the README on GitHub at <https://github.com/kara
 # package versions will be relative to the choosen LTS (?)
 dependencies:
 - base >= 4.7 && < 5
-- zlib
-- bytestring
-- easy-file
-- xml
+- easy-file # TODO: use rio instead
 #- transformers
 
 library:
   source-dirs: src
+  dependencies:
+  - zlib
+  - bytestring
+  - xml
 
 executables:
   abletonlive-xml:
@@ -39,9 +40,23 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    # taken from https://github.com/commercialhaskell/rio
+    - -Wall
+    - -Wcompat
+    - -Widentities
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wpartial-fields
+    - -Wredundant-constraints
     dependencies:
+    - rio
+    - optparse-simple
     - abletonlive-xml
+    #default-extensions: # LANGUAGE pragmas; see https://github.com/commercialhaskell/rio#language-extensions
+    default-extensions:
+    - NoImplicitPrelude
 
+    
 #tests:
 #  abletonlive-xml-test:
 #    main:                Spec.hs

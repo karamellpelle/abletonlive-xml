@@ -16,8 +16,18 @@
 -- You should have received a copy of the GNU General Public License
 -- along with grid.  If not, see <http://www.gnu.org/licenses/>.
 --
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
+
+
+
 module Main where
 
+import RIO
+import RIO.Process
+import App
+import Paths_abletonlive_xml
+import Options.Applicative.Simple
 
 import Ableton
 import Ableton.AbletonBin
@@ -25,37 +35,75 @@ import Ableton.AbletonXML
 
 
 main :: IO ()
-main = 
-  printHelp
+main = do
+  --verbose <- isJust <$> lookupEnv "RIO_VERBOSE"
+  lo <- logOptionsHandle stderr False --verbose
+  po <- mkDefaultProcessContext
+  opts <- getGlobalOpts
+
+  withLogFunc lo $ \lf ->
+    let run = Runner
+              { runnerLogFunc = lf
+              , runnerProcessContext = po
+              , runnerGlobalOpts = opts
+              }
+     in runRIO run runApplication
+  
 
 
-printHelp :: IO ()
+
+getGlobalOpts :: IO GlobalOpts
+getGlobalOpts = do
+    (options, ()) <- simpleOptions
+        -- $(simpleVersion Paths_abletonlive_xml.version)
+        "0.0"
+        "Header for command line arguments"
+        "Program description, also for command line arguments"
+        (GlobalOpts
+           <$> switch ( long "verbose"
+                     <> short 'v'
+                     <> help "Verbose output?"
+                      )
+        )
+        empty
+
+    return options
+
+-- | RIO starts here!
+runApplication :: RIO Runner ()
+runApplication = do
+    logInfo "we are running!"
+    
+
+-- | temporary helper
+printHelp :: HasLogFunc env => RIO env ()
 printHelp = do
-    putStrLn "abletonlive-xml - let Ableton Live use XML & Git"
-    putStrLn ""
-    putStrLn "Usage: abletonlive-xml [--help]"
-    putStrLn "                       [--version]"
-    putStrLn "                       [--verbose]"
-    putStrLn "                       [--silent]"
-    putStrLn "                       [--read-dir XML-DIR]"
-    putStrLn "                       [--write-dir ABLETON-DIR]"
-    putStrLn "                       [read|write|pull|push]"
-    putStrLn ""
-    putStrLn "Available options:"
-    putStrLn "  --help                     Show this help text"
-    putStrLn "  --version                  Show version"
-    putStrLn "  --verbose                  Enable verbose mode"
-    putStrLn "  --silent                   Enable silent mode"
-    putStrLn "  --xml-dir XML-DIR          Use XML-DIR for input (default './xml')"
-    putStrLn "  --ableton-dir ABLETON-DIR  Use ABLETON-DIR for output (default: './')"
-    putStrLn ""
-    putStrLn "Available commands:"
-    putStrLn "  read [ABLETON-FILES|ABLETON-DIRS]       (default all)"
-    putStrLn "  write [ABLETON-FILES|ABLETON-DIRS]      (default all)"
-    putStrLn "  pull                     Pull changes in Git repository"
-    putStrLn "  push                     Push changes to Git repository"
+    logInfo "abletonlive-xml - let Ableton Live use XML & Git"
+    logInfo ""
+    logInfo "Usage: abletonlive-xml [--help]"
+    logInfo "                       [--version]"
+    logInfo "                       [--verbose]"
+    logInfo "                       [--silent]"
+    logInfo "                       [--read-dir XML-DIR]"
+    logInfo "                       [--write-dir ABLETON-DIR]"
+    logInfo "                       [read|write|pull|push]"
+    logInfo ""
+    logInfo "Available options:"
+    logInfo "  --help                     Show this help text"
+    logInfo "  --version                  Show version"
+    logInfo "  --verbose                  Enable verbose mode"
+    logInfo "  --silent                   Enable silent mode"
+    logInfo "  --xml-dir XML-DIR          Use XML-DIR for input (default './xml')"
+    logInfo "  --ableton-dir ABLETON-DIR  Use ABLETON-DIR for output (default: './')"
+    logInfo ""
+    logInfo "Available commands:"
+    logInfo "  read [ABLETON-FILES|ABLETON-DIRS]       (default all)"
+    logInfo "  write [ABLETON-FILES|ABLETON-DIRS]      (default all)"
+    logInfo "  pull                     Pull changes in Git repository"
+    logInfo "  push                     Push changes to Git repository"
 
-printVersion :: IO ()
+
+printVersion :: HasLogFunc env => RIO env () 
 printVersion = do
-    putStrLn "1.9.3 x86_64 (FIXME!!!)"
+    logInfo "1.9.3 x86_64 (FIXME!!!)"
 
