@@ -28,19 +28,19 @@ dependencies:
 - xml
 #- transformers
 
-#library:
-#  source-dirs: src
+library:
+  source-dirs: src
 
 executables:
   abletonlive-xml:
     main:                Main.hs
-    source-dirs:         source
+    source-dirs:         app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    #dependencies:
-    #- abletonlive-xml
+    dependencies:
+    - abletonlive-xml
 
 #tests:
 #  abletonlive-xml-test:

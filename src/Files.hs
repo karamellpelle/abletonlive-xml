@@ -38,7 +38,6 @@ import Data.Maybe
 import Data.Char
 
 import Ableton
-import Convert
 
 
 
