@@ -59,7 +59,7 @@ getGlobalOptsCommands = do
     simpleOptions versionStr headerStr descriptionStr 
                   pGlobalOpts pCommand
     where
-      versionStr = $(simpleVersion Paths_abletonlive_xml.version) ++ "  build " ++ take 7 $(gitHash)  -- short hash
+      versionStr = $(simpleVersion Paths_abletonlive_xml.version) -- ++ "  build " ++ take 7 $(gitHash)  -- short hash
       headerStr = "abletonlive-xml : work with XML files instead of Ableton Live binary files"
       descriptionStr = ""
 
