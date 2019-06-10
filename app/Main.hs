@@ -18,6 +18,8 @@
 --
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE ApplicativeDo #-}
 
 
 
@@ -28,6 +30,7 @@ import RIO.Process
 import App
 import Paths_abletonlive_xml
 import Options.Applicative.Simple
+import Development.GitRev
 
 import Ableton
 import Ableton.AbletonBin
@@ -39,7 +42,7 @@ main = do
   --verbose <- isJust <$> lookupEnv "RIO_VERBOSE"
   lo <- logOptionsHandle stderr False --verbose
   po <- mkDefaultProcessContext
-  opts <- getGlobalOpts
+  (opts, cmd) <- getGlobalOptsCommands
 
   withLogFunc lo $ \lf ->
     let run = Runner
@@ -47,63 +50,47 @@ main = do
               , runnerProcessContext = po
               , runnerGlobalOpts = opts
               }
-     in runRIO run runApplication
+     in runRIO run $ runApplication cmd
   
 
 
+getGlobalOptsCommands :: IO (GlobalOpts, Command)
+getGlobalOptsCommands = do
+    simpleOptions versionStr headerStr descriptionStr 
+                  pGlobalOpts pCommand
+    where
+      versionStr = $(simpleVersion Paths_abletonlive_xml.version) ++ "  build " ++ take 7 $(gitHash)  -- short hash
+      headerStr = "abletonlive-xml : work with XML files instead of Ableton Live binary files"
+      descriptionStr = ""
 
-getGlobalOpts :: IO GlobalOpts
-getGlobalOpts = do
-    (options, ()) <- simpleOptions
-        -- $(simpleVersion Paths_abletonlive_xml.version)
-        "0.0"
-        "Header for command line arguments"
-        "Program description, also for command line arguments"
-        (GlobalOpts
-           <$> switch ( long "verbose"
-                     <> short 'v'
-                     <> help "Verbose output?"
-                      )
-        )
-        empty
+      pGlobalOpts = do
+          verbose <- switch (long "verbose" <> short 'v' <> help "verbose output")
+          pure $ GlobalOpts { globaloptsVerbose = verbose }
+          
+      pCommand = do
+          addCommand "read" "read XML from binary" id $ do
+              let args = ["file.xml"] -- tmp
+              pure $ CommandRead args
+              
+          addCommand "write" "write binary from XML" id $ do
+              let args = ["file.axx"]
+              pure $ CommandWrite args
 
-    return options
+          addCommand "pull" "pull changes from remote Git repository" id $ do
+              let args = ()
+              pure $ CommandPush args
+
+          addCommand "push" "push changes to remote Git repository" id $ do
+              let args = ()
+              pure $ CommandPull args
+
+
 
 -- | RIO starts here!
-runApplication :: RIO Runner ()
-runApplication = do
-    logInfo "we are running!"
+runApplication :: Command -> RIO Runner ()
+runApplication cmd = do
+    logInfo $ fromString $ "we are running!" ++ " (" ++ show cmd ++ ")"
     
 
--- | temporary helper
-printHelp :: HasLogFunc env => RIO env ()
-printHelp = do
-    logInfo "abletonlive-xml - let Ableton Live use XML & Git"
-    logInfo ""
-    logInfo "Usage: abletonlive-xml [--help]"
-    logInfo "                       [--version]"
-    logInfo "                       [--verbose]"
-    logInfo "                       [--silent]"
-    logInfo "                       [--read-dir XML-DIR]"
-    logInfo "                       [--write-dir ABLETON-DIR]"
-    logInfo "                       [read|write|pull|push]"
-    logInfo ""
-    logInfo "Available options:"
-    logInfo "  --help                     Show this help text"
-    logInfo "  --version                  Show version"
-    logInfo "  --verbose                  Enable verbose mode"
-    logInfo "  --silent                   Enable silent mode"
-    logInfo "  --xml-dir XML-DIR          Use XML-DIR for input (default './xml')"
-    logInfo "  --ableton-dir ABLETON-DIR  Use ABLETON-DIR for output (default: './')"
-    logInfo ""
-    logInfo "Available commands:"
-    logInfo "  read [ABLETON-FILES|ABLETON-DIRS]       (default all)"
-    logInfo "  write [ABLETON-FILES|ABLETON-DIRS]      (default all)"
-    logInfo "  pull                     Pull changes in Git repository"
-    logInfo "  push                     Push changes to Git repository"
 
-
-printVersion :: HasLogFunc env => RIO env () 
-printVersion = do
-    logInfo "1.9.3 x86_64 (FIXME!!!)"
 

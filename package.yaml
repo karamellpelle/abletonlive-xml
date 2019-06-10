@@ -23,6 +23,7 @@ description:         Please see the README on GitHub at <https://github.com/kara
 dependencies:
 - base >= 4.7 && < 5
 - easy-file # TODO: use rio instead
+- gitrev
 #- transformers
 
 library:

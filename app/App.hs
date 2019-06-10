@@ -20,6 +20,8 @@ module App
   (
     Runner (..)
   , GlobalOpts (..)
+  , Command (..)
+
   , HasGlobalOpts (..)
   ) where
 
@@ -29,15 +31,29 @@ import RIO.Process
 -- | inspired by Stack.Types.Config of commercialhaskell/stack on GitHub,
 --   and RIO.Prelude.Simple.SimpleApp
 data Runner = Runner
-    { runnerLogFunc :: !LogFunc
+    { 
+      runnerLogFunc :: !LogFunc
     , runnerProcessContext :: !ProcessContext
     , runnerGlobalOpts :: !GlobalOpts
     }
 
 data GlobalOpts = GlobalOpts
-    { globaloptsVerbose :: !Bool
+    { 
+      globaloptsVerbose :: !Bool
     }
 
+
+data Command = 
+    CommandRead  ReadArgs    |
+    CommandWrite WriteArgs   |
+    CommandPush PushArgs     |
+    CommandPull PullArgs
+    deriving (Show)
+
+type ReadArgs = [FilePath]
+type WriteArgs = [FilePath]
+type PushArgs = ()
+type PullArgs = ()
 
 --------------------------------------------------------------------------------
 --  HasGlobalOpts
