@@ -37,6 +37,12 @@ import Ableton.AbletonBin
 import Ableton.AbletonXML
 
 
+-- | TODO: find this from stack package (Paths_abletonlive_xml does not expose it)
+executableName :: String
+executableName = "abletonlive-xml"
+
+
+
 main :: IO ()
 main = do
   --verbose <- isJust <$> lookupEnv "RIO_VERBOSE"
@@ -59,28 +65,37 @@ getGlobalOptsCommands = do
     simpleOptions versionStr headerStr descriptionStr 
                   pGlobalOpts pCommand
     where
-      versionStr = $(simpleVersion Paths_abletonlive_xml.version) -- ++ "  build " ++ take 7 $(gitHash)  -- short hash
-      headerStr = "abletonlive-xml : work with XML files instead of Ableton Live binary files"
-      descriptionStr = ""
+      versionStr = $(simpleVersion Paths_abletonlive_xml.version)
+      headerStr = executableName ++ " : work with XML files instead of Ableton Live binary files"
+      descriptionStr = "for command specific help, use '" ++ executableName ++ " COMMAND --help'"
 
       pGlobalOpts = do
+          -- verbose output? (optional)
           verbose <- switch (long "verbose" <> short 'v' <> help "verbose output")
+          -- optional option
+          --str <- strOption (long "option" <> help "description") <|> pure "default value"
           pure $ GlobalOpts { globaloptsVerbose = verbose }
           
       pCommand = do
-          addCommand "read" "read XML from binary" id $ do
-              let args = ["file.xml"] -- tmp
-              pure $ CommandRead args
-              
-          addCommand "write" "write binary from XML" id $ do
-              let args = ["file.axx"]
-              pure $ CommandWrite args
+          addCommand "read" "read XML files from binary files" id $ do
+              -- files/folders (optional). default all
+              filepaths <- many $ strArgument (metavar "PATHS" <> help "file/folders to read (optional)")
 
-          addCommand "pull" "pull changes from remote Git repository" id $ do
-              let args = ()
-              pure $ CommandPush args
+              pure $ CommandRead $ ReadArgs filepaths 
+              
+          addCommand "write" "write binary files from XML files" id $ do
+              -- files/folders (optional). default all
+              filepaths <- many $ strArgument (metavar "PATHS" <> help "file/folders to write (optional)")
+
+              pure $ CommandWrite $ WriteArgs filepaths
 
           addCommand "push" "push changes to remote Git repository" id $ do
+              -- git repository (optional)
+              optGitRepository <- strOption (long "git-repository" <> metavar "URL|REMOTE" <> help "Git repository")
+                                  <|> pure ""
+              pure $ CommandPush $ PushArgs optGitRepository
+
+          addCommand "pull" "pull changes from remote Git repository" id $ do
               let args = ()
               pure $ CommandPull args
 
@@ -89,8 +104,13 @@ getGlobalOptsCommands = do
 -- | RIO starts here!
 runApplication :: Command -> RIO Runner ()
 runApplication cmd = do
-    logInfo $ fromString $ "we are running!" ++ " (" ++ show cmd ++ ")"
-    
+    logInfo $ fromString $ "we are running!" 
+    case cmd of
+      CommandRead args -> do
+          mapM_ logInfo $ map fromString $ readargsFilePaths args
+      CommandPush args -> do
+          when (not $ null $ pushargsGitRepository args) $ logInfo $ fromString $ "repository given: " ++ pushargsGitRepository args 
+      _ -> return () 
 
 
 

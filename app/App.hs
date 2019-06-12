@@ -21,12 +21,22 @@ module App
     Runner (..)
   , GlobalOpts (..)
   , Command (..)
+  , ReadArgs (..)
+  , WriteArgs (..)
+  , PushArgs (..)
+  , PullArgs (..)
 
   , HasGlobalOpts (..)
   ) where
 
 import RIO
 import RIO.Process
+
+
+
+--------------------------------------------------------------------------------
+--  our program configuration (R)
+
 
 -- | inspired by Stack.Types.Config of commercialhaskell/stack on GitHub,
 --   and RIO.Prelude.Simple.SimpleApp
@@ -37,44 +47,65 @@ data Runner = Runner
     , runnerGlobalOpts :: !GlobalOpts
     }
 
-data GlobalOpts = GlobalOpts
-    { 
-      globaloptsVerbose :: !Bool
-    }
 
-
-data Command = 
-    CommandRead  ReadArgs    |
-    CommandWrite WriteArgs   |
-    CommandPush PushArgs     |
-    CommandPull PullArgs
-    deriving (Show)
-
-type ReadArgs = [FilePath]
-type WriteArgs = [FilePath]
-type PushArgs = ()
-type PullArgs = ()
-
---------------------------------------------------------------------------------
---  HasGlobalOpts
-
+-- HasGlobalOpts
 class HasGlobalOpts env where
     globalOptsL :: Lens' env GlobalOpts
 
 instance HasGlobalOpts Runner where
     globalOptsL = lens runnerGlobalOpts (\x y -> x { runnerGlobalOpts = y })
 
---------------------------------------------------------------------------------
---  HasLogFunc
-
+-- HasLogFunc
 instance HasLogFunc Runner where
     logFuncL = lens runnerLogFunc (\x y -> x { runnerLogFunc = y })
 
---------------------------------------------------------------------------------
 --  HasProcessContext
-
 instance HasProcessContext Runner where
     processContextL = lens runnerProcessContext (\x y -> x { runnerProcessContext = y })
+
+
+--------------------------------------------------------------------------------
+--  options to be used through the whole program
+
+data GlobalOpts = GlobalOpts
+    { 
+      globaloptsVerbose :: !Bool
+    }
+
+
+--------------------------------------------------------------------------------
+--  commands
+
+
+data Command = 
+    CommandRead  ReadArgs  |
+    CommandWrite WriteArgs |
+    CommandPush  PushArgs  |
+    CommandPull  PullArgs
+
+
+-- | how to use 'read' command
+data ReadArgs = ReadArgs
+    {
+        readargsFilePaths :: [FilePath]
+    }
+
+-- | how to use 'write' command
+data WriteArgs = WriteArgs
+    {
+        writeargsFilePaths :: [FilePath]
+    }
+
+-- | how to push to repository
+data PushArgs = PushArgs
+    {
+        pushargsGitRepository :: String
+        -- etc.
+    }
+
+-- | how to pull from repository
+type PullArgs = ()
+
 
 
     
