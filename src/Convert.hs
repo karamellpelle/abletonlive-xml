@@ -26,10 +26,11 @@ module Convert
 
   ) where
 
-import Codec.Compression.GZip as GZip
-import qualified Data.ByteString.Lazy as BS
-import Data.List
-import Data.Maybe
+import RIO
+import MyPrelude
+import qualified RIO.ByteString as B
+import qualified RIO.ByteString.Lazy as BL
+import qualified Codec.Compression.GZip as GZip
 
 import Ableton.AbletonData
 import Ableton.AbletonBin
@@ -59,7 +60,7 @@ instance ToAbletonBin AbletonXML where
         Just AbletonBin
         { 
             abletonbinType = abletondataType axml,               -- assuming valid XML, no verificationD of valid XML
-            abletonbinData = GZip.compress $ abletonxmlData axml -- NOTE use 'compressWith' to control compression parameters
+            abletonbinData = BL.toStrict $ GZip.compress $ BL.fromStrict $ abletonxmlData axml -- NOTE use 'compressWith' to control compression parameters
         }
 
 
@@ -86,7 +87,7 @@ instance ToAbletonXML AbletonBin where
     toAbletonXML abin = 
         Just AbletonXML
         {
-            abletonxmlData =  GZip.decompress $ abletonbinData abin
+            abletonxmlData =  BL.toStrict $ GZip.decompress $ BL.fromStrict $ abletonbinData abin
         }
 
 -- | file to AbletonXML 

@@ -22,11 +22,12 @@ module Ableton.AbletonFile
 
     -- TODO: remove
     changeAbletonFilePath,
-    changeAbletonFileRoot,
-    changeAbletonFileBaseName,
+    --changeAbletonFileRoot,
+    --changeAbletonFileBaseName,
 
   ) where
 
+import RIO
 import MyPrelude
 import System.EasyFile
 
@@ -50,7 +51,7 @@ changeAbletonFilePath :: (FilePath -> FilePath) -> AbletonFile a -> AbletonFile 
 changeAbletonFilePath f file =
     file { abletonfilePath = f $ abletonfilePath file }
 
-
+{-
 -- | change root folder, for example
 --
 --      changeAbletonFileRoot "xml/" "../" "xml/Packs/HiTech/Bass/CoolB.adg.xml" == "../Packs/HiTech/Bass/CoolB.adg.xml"
@@ -69,5 +70,5 @@ changeAbletonFileRoot root root' =
 changeAbletonFileBaseName :: String -> AbletonFile a -> AbletonFile a
 changeAbletonFileBaseName name = 
     changeAbletonFilePath $ \path -> replaceBaseName path name
-
+-}
     

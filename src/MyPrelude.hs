@@ -23,14 +23,10 @@ module MyPrelude
     --io,
     --module Data.Monoid,
     --module Control.Monad, 
-    module Data.List
 
 ) where
 
---import Data.Monoid
---import Control.Monad
---import Control.Monad.Trans
-import Data.List
+import RIO
 
 
 --------------------------------------------------------------------------------

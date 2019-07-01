@@ -21,7 +21,8 @@ module Ableton.AbletonXML
     AbletonXML (..),
   ) where
 
-import qualified Data.ByteString.Lazy as BS
+import RIO
+import qualified RIO.ByteString as B -- "don't use Lazy - https://haskell.fpcomplete.com/tutorial/string-types"
 import Text.XML.Light
 
 import Ableton.AbletonData
@@ -31,7 +32,7 @@ import Ableton.AbletonData
 data AbletonXML = 
     AbletonXML
     {
-        abletonxmlData :: BS.ByteString
+        abletonxmlData :: B.ByteString -- TODO: RIO.Text
     }
 
 --------------------------------------------------------------------------------

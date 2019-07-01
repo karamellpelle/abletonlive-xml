@@ -21,10 +21,11 @@ module Ableton.AbletonBin
     AbletonBin (..),
   ) where
 
+import RIO
 import MyPrelude
 
 import Ableton.AbletonData
-import qualified Data.ByteString.Lazy as BS -- lazy because of GZip
+import qualified RIO.ByteString as B -- "don't use Lazy - https://haskell.fpcomplete.com/tutorial/string-types"
 
 
 -- | data holding binary data
@@ -32,7 +33,7 @@ data AbletonBin =
     AbletonBin
     {
         abletonbinType :: AbletonDataType,
-        abletonbinData :: BS.ByteString
+        abletonbinData :: B.ByteString
     }
 
 

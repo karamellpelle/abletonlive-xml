@@ -31,11 +31,13 @@ module Files
 
   ) where
 
-import qualified Data.ByteString.Lazy as BS
+import RIO
+import qualified RIO.ByteString as B
+import qualified RIO.Char as C
+
 import System.EasyFile
-import Control.Exception
-import Data.Maybe
-import Data.Char
+--import Data.Maybe
+--import Data.Char
 
 import Ableton
 
@@ -60,13 +62,13 @@ import Ableton
 --
 readAbletonFileXML :: FilePath -> IO (AbletonFile AbletonXML)
 readAbletonFileXML path = do
-    dat <- BS.readFile path
+    dat <- B.readFile path
     return $ AbletonFile path $ AbletonXML { abletonxmlData = dat }
     
 
 writeAbletonFileXML :: AbletonFile AbletonXML -> IO FilePath
 writeAbletonFileXML file = do
-    BS.writeFile (abletonfilePath file) $ abletonxmlData $ abletonfileContent file
+    B.writeFile (abletonfilePath file) $ abletonxmlData $ abletonfileContent file
     return $ abletonfilePath file
 
 
@@ -76,17 +78,21 @@ writeAbletonFileXML file = do
 -- | no verification of file dat; it assumes correct extension
 readAbletonFileBin :: FilePath -> IO (AbletonFile AbletonBin)
 readAbletonFileBin path = do
-    dat <- BS.readFile path
+    dat <- B.readFile path
     return $ AbletonFile path $ AbletonBin
              {
-                 abletonbinType = fromJust $ extToAbletonData $ takeExtensions path, -- TODO: do verification, not isJust!!
+                 --abletonbinType = fromJust $ extToAbletonData $ takeExtensions path, -- TODO: do verification, not isJust!!
+                 abletonbinType = tmp $ extToAbletonData $ takeExtensions path,
                  abletonbinData = dat
              }
-
+    where
+      tmp d = case d of 
+          Just t -> t 
+          _      -> undefined
 
 writeAbletonFileBin :: (AbletonFile AbletonBin) -> IO FilePath
 writeAbletonFileBin file = do
-    BS.writeFile (abletonfilePath file) $ abletonbinData $ abletonfileContent file
+    B.writeFile (abletonfilePath file) $ abletonbinData $ abletonfileContent file
     return $ abletonfilePath file
 
 
@@ -119,7 +125,7 @@ filepathIsAbletonXML path =
 
 -- | use extension to find what kind of Ableton data
 extToAbletonData :: String -> Maybe AbletonDataType
-extToAbletonData ext = case fmap toLower ext of -- uppercase == lowercase
+extToAbletonData ext = case fmap C.toLower ext of -- uppercase == lowercase
       ".adg" -> Just FileADG 
       ".agr" -> Just FileAGR
       ".adv" -> Just FileADV
