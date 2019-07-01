@@ -2,7 +2,7 @@ name:                abletonlive-xml
 version:             0.1.0.0
 github:              "karamellpelle/abletonlive-xml"
 license:             GPL-3
-author:              "Carl Joachim Svenn"
+author:              "karamellpelle@hotmail.com"
 maintainer:          "karamellpelle@hotmail.com"
 copyright:           "2019 Carl Joachim Svenn"
 
@@ -27,16 +27,17 @@ dependencies:
 #- transformers
 
 library:
-  source-dirs: src
+  source-dirs: lib-source
   dependencies:
   - zlib
   - bytestring
   - xml
+  - rio
 
 executables:
   abletonlive-xml:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         app-source
     ghc-options:
     - -threaded
     - -rtsopts
