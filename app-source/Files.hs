@@ -18,9 +18,6 @@
 --
 module Files
   (
-    abletonfilebinExtensions,
-    filepathIsAbletonBin,
-    filepathIsAbletonXML,
 
     -- XML
     readAbletonFileXML,
@@ -68,7 +65,7 @@ readAbletonFileXML path = do
 
 writeAbletonFileXML :: AbletonFile AbletonXML -> IO FilePath
 writeAbletonFileXML file = do
-    B.writeFile (abletonfilePath file) $ abletonxmlData $ abletonfileContent file
+    B.writeFile (abletonfilePath file) $ abletonxmlData $ abletonfileData file
     return $ abletonfilePath file
 
 
@@ -92,64 +89,11 @@ readAbletonFileBin path = do
 
 writeAbletonFileBin :: (AbletonFile AbletonBin) -> IO FilePath
 writeAbletonFileBin file = do
-    B.writeFile (abletonfilePath file) $ abletonbinData $ abletonfileContent file
+    B.writeFile (abletonfilePath file) $ abletonbinData $ abletonfileData file
     return $ abletonfilePath file
 
 
 
--- | known extensions of Ableton binary files
-abletonfilebinExtensions :: [String]
-abletonfilebinExtensions = [
-      ".adg",
-      ".agr",
-      ".adv",
-      ".alc",
-      ".als",
-      ".alp",
-      ".ams",
-      ".amxd",
-      ".asd",
-      ".asx" ]
-
--- | is file(path) a binary file of Ableton?
-filepathIsAbletonBin :: FilePath -> Bool
-filepathIsAbletonBin path =
-    elem (takeExtension path) abletonfilebinExtensions
-
--- | is file(path) a XML file of Ableton?
-filepathIsAbletonXML :: FilePath -> Bool
-filepathIsAbletonXML path =
-    elem (takeExtension path) [".xml"]
 
 
-
--- | use extension to find what kind of Ableton data
-extToAbletonData :: String -> Maybe AbletonDataType
-extToAbletonData ext = case fmap C.toLower ext of -- uppercase == lowercase
-      ".adg" -> Just FileADG 
-      ".agr" -> Just FileAGR
-      ".adv" -> Just FileADV
-      ".alc" -> Just FileALC
-      ".als" -> Just FileALS
-      ".alp" -> Just FileALP
-      ".ams" -> Just FileAMS
-      ".amxd" -> Just FileAMXD
-      ".asd" -> Just FileASD
-      ".asx" -> Just FileASX
-      _     -> Nothing
-
--- | get extension from AbletonDataType
-abletondataToExt :: AbletonDataType -> String 
-abletondataToExt t = case t of 
-    FileADG -> ".adg"
-    FileAGR -> ".agr"
-    FileADV -> ".adv"
-    FileALC -> ".alc"
-    FileALS -> ".als"
-    FileALP -> ".alp"
-    FileAMS -> ".ams"
-    FileAMXD -> ".amxd"
-    FileASD -> ".asd"
-    FileASX -> ".asx"
-    
 

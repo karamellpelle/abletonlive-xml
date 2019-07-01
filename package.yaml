@@ -33,6 +33,18 @@ library:
   - bytestring
   - xml
   - rio
+  ghc-options:
+  # taken from https://github.com/commercialhaskell/rio
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wpartial-fields
+  - -Wredundant-constraints
+
+  - -Wno-unused-imports
+  - -Wno-dodgy-exports
 
 executables:
   abletonlive-xml:
@@ -50,7 +62,10 @@ executables:
     - -Wincomplete-uni-patterns
     - -Wpartial-fields
     - -Wredundant-constraints
+
     - -Wno-unused-imports
+    - -Wno-dodgy-exports
+
     dependencies:
     - rio
     - optparse-simple

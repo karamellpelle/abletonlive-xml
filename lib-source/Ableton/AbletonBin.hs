@@ -19,6 +19,7 @@
 module Ableton.AbletonBin
   (
     AbletonBin (..),
+    ToAbletonBin (..),
   ) where
 
 import RIO
@@ -35,6 +36,21 @@ data AbletonBin =
         abletonbinType :: AbletonDataType,
         abletonbinData :: B.ByteString
     }
+
+
+--------------------------------------------------------------------------------
+--  ToAbletonBin
+
+-- | convert a type  to an `AbletonBin`
+--   TODO: Maybe
+class ToAbletonBin a where
+    toAbletonBin :: a -> Maybe AbletonBin
+
+
+
+-- | `AbletonBin -> AbletonBin`
+instance ToAbletonBin AbletonBin where
+    toAbletonBin = Just
 
 
 

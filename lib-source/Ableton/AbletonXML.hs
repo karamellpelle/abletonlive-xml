@@ -19,6 +19,7 @@
 module Ableton.AbletonXML
   (
     AbletonXML (..),
+    ToAbletonXML (..),
   ) where
 
 import RIO
@@ -28,12 +29,24 @@ import Text.XML.Light
 import Ableton.AbletonData
 
 -- | data holding XML data
---   TODO: abletonbinType instead of reading XML structure (XML definition looks same for Clips and Sets)
 data AbletonXML = 
     AbletonXML
     {
         abletonxmlData :: B.ByteString -- TODO: RIO.Text
     }
+
+--------------------------------------------------------------------------------
+--  ToAbletonXML
+
+-- | convert a type  to an `AbletonXML`
+class ToAbletonXML a where
+    toAbletonXML :: a -> Maybe AbletonXML
+
+
+
+-- | `AbletonXML -> AbletonXML`
+instance ToAbletonXML AbletonXML where
+    toAbletonXML = Just
 
 --------------------------------------------------------------------------------
 --  peek AbletonDataType from XML data
@@ -52,7 +65,6 @@ instance AbletonData AbletonXML where
 {-
 
     case abletonxmlType axml of
-    uKk
         FileADG | -- ^ device group
         FileAGR | -- ^ groove file
         FileADV | -- ^ device preset

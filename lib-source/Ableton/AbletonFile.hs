@@ -20,17 +20,25 @@ module Ableton.AbletonFile
   (
     AbletonFile (..),
 
+    extToAbletonData,
+    abletondataToBinExt,
+    filepathIsAbletonBin,
+    filepathIsAbletonXML,
+
     -- TODO: remove
-    changeAbletonFilePath,
+    modifyAbletonFilePath,
     --changeAbletonFileRoot,
     --changeAbletonFileBaseName,
 
   ) where
 
 import RIO
-import MyPrelude
+import qualified RIO.ByteString as B
+import qualified RIO.Char as C
+
 import System.EasyFile
 
+import MyPrelude
 import Ableton.AbletonData
 
 
@@ -40,15 +48,72 @@ data AbletonFile a =
     AbletonFile
     {
         abletonfilePath :: FilePath,
-        abletonfileContent :: a
+        abletonfileData :: a
     }
+-- TODO: AbletonFile = forall b. AbletonData b => abletonfileData
+
+--------------------------------------------------------------------------------
+--  
+
+-- | what kind of AbletonData holds this file?
+extToAbletonData :: String -> Maybe AbletonDataType
+extToAbletonData ext = case fmap C.toLower ext of -- uppercase == lowercase
+      ".adg" -> Just FileADG 
+      ".agr" -> Just FileAGR
+      ".adv" -> Just FileADV
+      ".alc" -> Just FileALC
+      ".als" -> Just FileALS
+      ".alp" -> Just FileALP
+      ".ams" -> Just FileAMS
+      ".amxd" -> Just FileAMXD
+      ".asd" -> Just FileASD
+      ".asx" -> Just FileASX
+      _     -> Nothing
+
+-- | get extension from AbletonDataType
+abletondataToBinExt :: AbletonDataType -> String 
+abletondataToBinExt t = case t of 
+    FileADG -> ".adg"
+    FileAGR -> ".agr"
+    FileADV -> ".adv"
+    FileALC -> ".alc"
+    FileALS -> ".als"
+    FileALP -> ".alp"
+    FileAMS -> ".ams"
+    FileAMXD -> ".amxd"
+    FileASD -> ".asd"
+    FileASX -> ".asx"
+    
+-- | known extensions of Ableton binary files
+abletonfilebinExts :: [String]
+abletonfilebinExts = [
+      ".adg",
+      ".agr",
+      ".adv",
+      ".alc",
+      ".als",
+      ".alp",
+      ".ams",
+      ".amxd",
+      ".asd",
+      ".asx" ]
+
+-- | is filepath a binary file of Ableton?
+filepathIsAbletonBin :: FilePath -> Bool
+filepathIsAbletonBin path =
+    elem (takeExtension path) abletonfilebinExts
+
+-- | is filepath a XML file of Ableton?
+filepathIsAbletonXML :: FilePath -> Bool
+filepathIsAbletonXML path =
+    elem (takeExtension path) [".xml"]
 
 
 --------------------------------------------------------------------------------
 --  path operations
 
-changeAbletonFilePath :: (FilePath -> FilePath) -> AbletonFile a -> AbletonFile a
-changeAbletonFilePath f file =
+modifyAbletonFilePath :: (FilePath -> FilePath) -> AbletonFile a -> AbletonFile a
+modifyAbletonFilePath f file =
     file { abletonfilePath = f $ abletonfilePath file }
 
 {-
@@ -60,7 +125,7 @@ changeAbletonFilePath f file =
 --
 changeAbletonFileRoot :: FilePath -> FilePath -> AbletonFile a -> AbletonFile a
 changeAbletonFileRoot root root' = 
-    changeAbletonFilePath $ \path ->
+    modifyAbletonFilePath $ \path ->
         case stripPrefix root path of
             Just path' -> root' </> path'
             Nothing    -> path
@@ -69,6 +134,6 @@ changeAbletonFileRoot root root' =
 
 changeAbletonFileBaseName :: String -> AbletonFile a -> AbletonFile a
 changeAbletonFileBaseName name = 
-    changeAbletonFilePath $ \path -> replaceBaseName path name
+    modifyAbletonFilePath $ \path -> replaceBaseName path name
 -}
     

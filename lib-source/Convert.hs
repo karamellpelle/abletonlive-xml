@@ -20,8 +20,6 @@
 --{-# LANGUAGE FlexibleInstances #-}
 module Convert
   (
-    ToAbletonBin (..),
-    ToAbletonXML (..),
 
 
   ) where
@@ -37,21 +35,7 @@ import Ableton.AbletonBin
 import Ableton.AbletonXML
 import Ableton.AbletonFile
 
-
---------------------------------------------------------------------------------
---  ToAbletonBin
-
--- | convert a type  to an `AbletonBin`
---   TODO: Maybe
-class ToAbletonBin a where
-    toAbletonBin :: a -> Maybe AbletonBin
-
-
-
--- | `AbletonBin -> AbletonBin`
-instance ToAbletonBin AbletonBin where
-    toAbletonBin = Just
-
+{-
 
 -- | `AbletonXML -> AbletonBin`
 --   thi application is based upon this function
@@ -68,19 +52,6 @@ instance (ToAbletonBin a) => ToAbletonBin (AbletonFile a) where
     toAbletonBin file = toAbletonBin $ abletonfileContent file
 
 
---------------------------------------------------------------------------------
---  ToAbletonXML
-
--- | convert a type  to an `AbletonXML`
-class ToAbletonXML a where
-    toAbletonXML :: a -> Maybe AbletonXML
-
-
-
--- | `AbletonXML -> AbletonXML`
-instance ToAbletonXML AbletonXML where
-    toAbletonXML = Just
-
 -- | `AbletonBin -> AbletonXML`
 --   this application is based upon this function
 instance ToAbletonXML AbletonBin where
@@ -94,5 +65,5 @@ instance ToAbletonXML AbletonBin where
 instance (ToAbletonXML a) => ToAbletonXML (AbletonFile a) where
     toAbletonXML file = toAbletonXML $ abletonfileContent file
 
-
+-}
 
