@@ -23,7 +23,8 @@ module Ableton.AbletonXML
   ) where
 
 import RIO
-import qualified RIO.ByteString as B -- "don't use Lazy - https://haskell.fpcomplete.com/tutorial/string-types"
+import qualified RIO.ByteString as B 
+import qualified RIO.Text as T
 import Text.XML.Light
 
 import Ableton.AbletonData
@@ -32,7 +33,7 @@ import Ableton.AbletonData
 data AbletonXML = 
     AbletonXML
     {
-        abletonxmlData :: B.ByteString -- TODO: RIO.Text
+        abletonxmlText :: T.Text -- TODO: RIO.Text
     }
 
 --------------------------------------------------------------------------------
@@ -53,9 +54,10 @@ instance ToAbletonXML AbletonXML where
 
 instance AbletonData AbletonXML where
     abletondataType axml = 
-        case parseXMLDoc (abletonxmlData axml) of
-            Nothing   -> error "XML is not AbletonData"
-            Just doc  -> undefined
+        undefined
+        --case parseXMLDoc (abletonxmlData axml) of
+        --    Nothing   -> error "XML is not AbletonData"
+        --    Just doc  -> undefined
 
 --Ableton > InstrumentVector
 --Ableton > LiveSet

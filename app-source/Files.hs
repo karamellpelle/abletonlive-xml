@@ -31,12 +31,12 @@ module Files
 import RIO
 import qualified RIO.ByteString as B
 import qualified RIO.Char as C
-
+import qualified RIO.Text as T
+import qualified Data.Text.IO as T
 import System.EasyFile
---import Data.Maybe
---import Data.Char
 
 import Ableton
+import App
 
 
 
@@ -57,16 +57,19 @@ import Ableton
 -- | no verification of file dat; it assumes correct XML definition
 --   TODO: verify by filepath extension?
 --
-readAbletonFileXML :: FilePath -> IO (AbletonFile AbletonXML)
+readAbletonFileXML :: FilePath -> RIO' (Either Text (AbletonFile AbletonXML))
 readAbletonFileXML path = do
-    dat <- B.readFile path
-    return $ AbletonFile path $ AbletonXML { abletonxmlData = dat }
+    text <- tryIO $ readFile' path
+    case text of
+        Left exc    -> pure $ Left (T.pack $ show exc)
+        Right text  -> pure $ Right (AbletonFile path $ AbletonXML text)
     
 
-writeAbletonFileXML :: AbletonFile AbletonXML -> IO FilePath
+writeAbletonFileXML :: AbletonFile AbletonXML -> RIO' FilePath
 writeAbletonFileXML file = do
-    B.writeFile (abletonfilePath file) $ abletonxmlData $ abletonfileData file
-    return $ abletonfilePath file
+    undefined
+    --B.writeFile (abletonfilePath file) $ abletonxmlData $ abletonfileData file
+    --return $ abletonfilePath file
 
 
 --------------------------------------------------------------------------------
@@ -96,4 +99,9 @@ writeAbletonFileBin file = do
 
 
 
-
+--readFile' :: MonadUnliftIO m => FilePath -> m Text
+--readFile' path =
+--    liftIO $ T.readFile path
+readFile' :: MonadIO m => FilePath -> m Text
+readFile' path =
+    liftIO $ T.readFile path

@@ -68,6 +68,7 @@ executables:
 
     dependencies:
     - rio
+    - text
     - optparse-simple
     - abletonlive-xml
     #default-extensions: # LANGUAGE pragmas; see https://github.com/commercialhaskell/rio#language-extensions

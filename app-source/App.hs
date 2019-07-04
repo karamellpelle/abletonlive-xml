@@ -19,6 +19,7 @@
 module App
   (
     Runner (..)
+  , RIO' (..)
   , GlobalOpts (..)
   , Command (..)
   , ReadArgs (..)
@@ -33,6 +34,11 @@ import RIO
 import RIO.Process
 
 
+
+--------------------------------------------------------------------------------
+--  our Reader + IO monad
+
+type RIO' = RIO Runner 
 
 --------------------------------------------------------------------------------
 --  our program configuration (R)
