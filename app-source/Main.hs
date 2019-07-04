@@ -27,14 +27,15 @@ module Main where
 
 import RIO
 import RIO.Process
-import App
-import Paths_abletonlive_xml
+import qualified RIO.Text as T
 import Options.Applicative.Simple
 import Development.GitRev
 
+import App
+import Files
 import Ableton
-import Ableton.AbletonBin
-import Ableton.AbletonXML
+
+import Paths_abletonlive_xml
 
 
 -- | TODO: find this from stack package (Paths_abletonlive_xml does not expose it)
@@ -107,7 +108,16 @@ runApplication cmd = do
     logInfo $ fromString $ "we are running!" 
     case cmd of
       CommandRead args -> do
+          let paths = readargsFilePaths args
+          logInfo "files to read:"
           mapM_ logInfo $ map fromString $ readargsFilePaths args
+          logInfo ""
+          mapM_ readFiles paths
+          where
+            readFiles path = do
+                readAbletonFileXML path >>= \either -> case either of
+                    Left err    -> logWarn $ display err
+                    Right file  -> logInfo $ "successfully read '" <> fromString path <> "'"
       CommandPush args -> do
           when (not $ null $ pushargsGitRepository args) $ logInfo $ fromString $ "repository given: " ++ pushargsGitRepository args 
       _ -> return () 
