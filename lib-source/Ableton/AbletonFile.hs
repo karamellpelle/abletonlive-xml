@@ -16,30 +16,41 @@
 -- You should have received a copy of the GNU General Public License
 -- along with grid.  If not, see <http://www.gnu.org/licenses/>.
 --
+{-# LANGUAGE OverloadedStrings #-}
 module Ableton.AbletonFile
   (
     AbletonFile (..),
+    
+    readAbletonFileXML,
+    writeAbletonFileXML,
+    readAbletonFileBin,
+    writeAbletonFileBin,
 
-    extToAbletonData,
-    abletondataToBinExt,
     filepathIsAbletonBin,
     filepathIsAbletonXML,
+    extToAbletonData,
+    filepathToAbletonData,
+    abletondataToExt,
 
     -- TODO: remove
     modifyAbletonFilePath,
     --changeAbletonFileRoot,
     --changeAbletonFileBaseName,
 
+    
   ) where
 
 import RIO
+import RIO.FilePath
+import RIO.Directory
 import qualified RIO.ByteString as B
 import qualified RIO.Char as C
 
-import System.EasyFile
 
 import MyPrelude
 import Ableton.AbletonData
+import Ableton.AbletonBin
+import Ableton.AbletonXML
 
 
 
@@ -47,11 +58,50 @@ import Ableton.AbletonData
 data AbletonFile a = 
     AbletonFile
     {
-        abletonfilePath :: FilePath,
+        abletonfileFilePath :: FilePath,
         abletonfileData :: a
     }
 -- TODO: AbletonFile = forall b. AbletonData b => abletonfileData
 
+--------------------------------------------------------------------------------
+--  read write Bin
+
+readAbletonFileBin :: MonadUnliftIO m => FilePath -> m (Either Text (AbletonFile AbletonBin))
+readAbletonFileBin path = do
+    case filepathToAbletonData path of
+        Nothing -> pure $ Left $ "based on extension, file is not a AbletonFile"
+        Just t  -> do
+            bin <- tryIO $ liftIO $ readFileBinary path
+            case bin of
+                Left exc    -> pure $ Left $ textDisplay exc
+                Right bin   -> pure $ Right $ AbletonFile path $ AbletonBin t bin
+            
+        
+    
+
+writeAbletonFileBin :: MonadUnliftIO m => AbletonFile AbletonBin -> m (Either Text FilePath)
+writeAbletonFileBin file = do
+    a <- tryIO $ writeFileBinary (abletonfileFilePath file) (abletonbinData $ abletonfileData file)
+    case a of
+        Left exc    -> pure $ Left $ textDisplay exc
+        Right _     -> pure $ Right $ abletonfileFilePath file
+--------------------------------------------------------------------------------
+--  read write XML
+
+readAbletonFileXML :: MonadUnliftIO m => FilePath -> m (Either Text (AbletonFile AbletonXML))
+readAbletonFileXML path = do
+    text <- tryIO $ readFileUtf8 path
+    case text of
+        Left exc    -> pure $ Left $ textDisplay exc
+        Right text  -> pure $ Right $ AbletonFile path $ AbletonXML text
+    
+
+writeAbletonFileXML :: MonadUnliftIO m => AbletonFile AbletonXML -> m (Either Text FilePath)
+writeAbletonFileXML file = do
+    a <- tryIO $ writeFileUtf8 (abletonfileFilePath file) (abletonxmlText $ abletonfileData file)
+    case a of
+        Left exc    -> pure $ Left $ textDisplay exc
+        Right _     -> pure $ Right $ abletonfileFilePath file
 --------------------------------------------------------------------------------
 --  
 
@@ -70,9 +120,13 @@ extToAbletonData ext = case fmap C.toLower ext of -- uppercase == lowercase
       ".asx" -> Just FileASX
       _     -> Nothing
 
+filepathToAbletonData :: FilePath -> Maybe AbletonDataType
+filepathToAbletonData =
+    extToAbletonData . takeExtension
+
 -- | get extension from AbletonDataType
-abletondataToBinExt :: AbletonDataType -> String 
-abletondataToBinExt t = case t of 
+abletondataToExt :: AbletonDataType -> String 
+abletondataToExt t = case t of 
     FileADG -> ".adg"
     FileAGR -> ".agr"
     FileADV -> ".adv"
@@ -106,7 +160,7 @@ filepathIsAbletonBin path =
 -- | is filepath a XML file of Ableton?
 filepathIsAbletonXML :: FilePath -> Bool
 filepathIsAbletonXML path =
-    elem (takeExtension path) [".xml"]
+    elem (takeExtensions path) $ map (<.> ".xml") abletonfilebinExts
 
 
 --------------------------------------------------------------------------------
@@ -114,7 +168,7 @@ filepathIsAbletonXML path =
 
 modifyAbletonFilePath :: (FilePath -> FilePath) -> AbletonFile a -> AbletonFile a
 modifyAbletonFilePath f file =
-    file { abletonfilePath = f $ abletonfilePath file }
+    file { abletonfileFilePath = f $ abletonfileFilePath file }
 
 {-
 -- | change root folder, for example
