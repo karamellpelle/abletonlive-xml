@@ -64,6 +64,7 @@ executables:
 
     - -Wno-unused-imports
     - -Wno-dodgy-exports
+    - -Wno-overlapping-patterns
 
     dependencies:
     - rio

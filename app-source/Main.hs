@@ -103,24 +103,39 @@ getGlobalOptsCommands = do
 
 
 -- | RIO starts here!
-runApplication :: Command -> RIO Runner ()
+runApplication :: Command -> RIO' ()
 runApplication cmd = do
     logInfo $ fromString $ "we are running!" 
     case cmd of
-      CommandRead args -> do
-          let paths = readargsFilePaths args
-          logInfo "files to read:"
-          mapM_ logInfo $ map fromString $ readargsFilePaths args
-          logInfo ""
-          mapM_ readFiles paths
-          where
-            readFiles path = do
-                readAbletonFileXML path >>= \either -> case either of
-                    Left err    -> logWarn $ display err
-                    Right file  -> logInfo $ "successfully read '" <> fromString path <> "'"
-      CommandPush args -> do
-          when (not $ null $ pushargsGitRepository args) $ logInfo $ fromString $ "repository given: " ++ pushargsGitRepository args 
-      _ -> return () 
+      CommandRead args  -> read args
+      CommandWrite args -> write args
+      CommandPush args  -> push args
+      CommandPull args  -> pull args
+      _                 -> pure ()
 
 
 
+read :: ReadArgs -> RIO' ()
+read args = do
+    let paths = readargsFilePaths args
+    logInfo "files to read:"
+    mapM_ logInfo $ map fromString $ readargsFilePaths args
+    logInfo ""
+    mapM_ readFiles paths
+    where
+      readFiles path = do
+          readAbletonFileXML path >>= \either -> case either of
+              Left err    -> logWarn $ display err
+              Right file  -> logInfo $ "successfully read '" <> fromString path <> "'"
+
+write :: WriteArgs -> RIO' ()
+write args = do
+    logInfo "write not implemented yet."
+
+push :: PushArgs -> RIO' ()
+push args = do
+    when (not $ null $ pushargsGitRepository args) $ logInfo $ fromString $ "repository given: " ++ pushargsGitRepository args 
+
+pull :: PullArgs -> RIO' ()
+pull args = do
+    logInfo "pull not implemented yet."
