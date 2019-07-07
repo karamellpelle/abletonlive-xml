@@ -74,6 +74,7 @@ executables:
     #default-extensions: # LANGUAGE pragmas; see https://github.com/commercialhaskell/rio#language-extensions
     default-extensions:
     - NoImplicitPrelude
+    - OverloadedStrings
 
     
 #tests:

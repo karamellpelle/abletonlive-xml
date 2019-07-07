@@ -16,4 +16,30 @@
 -- You should have received a copy of the GNU General Public License
 -- along with grid.  If not, see <http://www.gnu.org/licenses/>.
 --
-module Commands () where
+module Command.Write
+  (
+    write,
+    WriteArgs (..)
+  ) where
+
+import RIO
+import App
+import Files
+
+--------------------------------------------------------------------------------
+--  
+
+-- | how to use the 'write' command
+data WriteArgs = WriteArgs
+    {
+        writeargsFilePaths :: [FilePath]
+    }
+
+
+--------------------------------------------------------------------------------
+--  the 'write' command
+
+write :: WriteArgs -> RIO' ()
+write args = do
+    logInfo "write not implemented yet."
+

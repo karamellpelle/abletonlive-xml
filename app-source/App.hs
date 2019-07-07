@@ -18,19 +18,15 @@
 --
 module App
   (
-    Runner (..)
-  , RIO' (..)
-  , GlobalOpts (..)
-  , Command (..)
-  , ReadArgs (..)
-  , WriteArgs (..)
-  , PushArgs (..)
-  , PullArgs (..)
+    Runner (..),
+    RIO' (..),
+    GlobalOpts (..),
 
-  , HasGlobalOpts (..)
+    HasGlobalOpts (..),
   
-  , module MyPrelude
-  , module Paths_abletonlive_xml
+    module MyPrelude,
+    module RIO,
+    module Paths_abletonlive_xml
   ) where
 
 import RIO
@@ -40,11 +36,6 @@ import Paths_abletonlive_xml
 
 
 --------------------------------------------------------------------------------
---  our Reader + IO monad
-
-type RIO' = RIO Runner 
-
---------------------------------------------------------------------------------
 --  our program configuration (R)
 
 
@@ -52,10 +43,15 @@ type RIO' = RIO Runner
 --   and RIO.Prelude.Simple.SimpleApp
 data Runner = Runner
     { 
-      runnerLogFunc :: !LogFunc
-    , runnerProcessContext :: !ProcessContext
-    , runnerGlobalOpts :: !GlobalOpts
+        runnerLogFunc :: !LogFunc,
+        runnerProcessContext :: !ProcessContext,
+        runnerGlobalOpts :: !GlobalOpts
     }
+
+--------------------------------------------------------------------------------
+--  our Reader + IO monad
+
+type RIO' = RIO Runner 
 
 
 -- HasGlobalOpts
@@ -74,48 +70,16 @@ instance HasProcessContext Runner where
     processContextL = lens runnerProcessContext (\x y -> x { runnerProcessContext = y })
 
 
+
 --------------------------------------------------------------------------------
 --  options to be used through the whole program
 
 data GlobalOpts = GlobalOpts
     { 
-      globaloptsVerbose :: !Bool
+        globaloptsVerbose :: !Bool
     }
 
 
---------------------------------------------------------------------------------
---  commands
-
-
-data Command = 
-    CommandRead  ReadArgs  |
-    CommandWrite WriteArgs |
-    CommandPush  PushArgs  |
-    CommandPull  PullArgs
-
-
--- | how to use 'read' command
-data ReadArgs = ReadArgs
-    {
-        readargsFilePaths :: [FilePath]
-    }
-
--- | how to use 'write' command
-data WriteArgs = WriteArgs
-    {
-        writeargsFilePaths :: [FilePath]
-    }
-
--- | how to push to repository
-data PushArgs = PushArgs
-    {
-        pushargsGitRepository :: String
-        -- etc.
-    }
-
--- | how to pull from repository
-type PullArgs = ()
 
 
 
-    

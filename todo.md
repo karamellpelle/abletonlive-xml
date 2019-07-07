@@ -1,10 +1,10 @@
-# control
-put 'read/writeAbletonFileXXX' into AppM monad to handle errors & error messages
 # TODO
 * peek ableton file type from xml data
 * catch exceptions from GZip.decompress
 * Use RIO.Text for XML content, see https://haskell.fpcomplete.com/tutorial/string-types
 * abletonxmlData to abletonxlText
+* using String instead of Text for error messages? I think so.
+* qualified RIO.X as T exported from App?
 
 # usage
 abletonlive-xml push [REP] = 
