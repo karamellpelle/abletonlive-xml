@@ -1,4 +1,5 @@
 # TODO
+* FileXXX -> DataXXX
 * peek ableton file type from xml data
 * catch exceptions from GZip.decompress
 * Use RIO.Text for XML content, see https://haskell.fpcomplete.com/tutorial/string-types

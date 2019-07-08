@@ -54,3 +54,5 @@ instance ToAbletonBin AbletonBin where
 
 
 
+instance AbletonData AbletonBin where
+    abletondataType = abletonbinType

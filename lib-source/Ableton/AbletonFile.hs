@@ -26,18 +26,12 @@ module Ableton.AbletonFile
     readAbletonFileBin,
     writeAbletonFileBin,
 
+    abletonfileToXML,
+    abletonfileToBin,
+
     filepathIsAbletonBin,
     filepathIsAbletonXML,
-    extToAbletonData,
-    filepathToAbletonData,
-    abletondataToExt,
 
-    -- TODO: remove
-    modifyAbletonFilePath,
-    --changeAbletonFileRoot,
-    --changeAbletonFileBaseName,
-
-    
   ) where
 
 import RIO
@@ -102,8 +96,44 @@ writeAbletonFileXML file = do
     case a of
         Left exc    -> pure $ Left $ textDisplay exc
         Right _     -> pure $ Right $ abletonfileFilePath file
+
 --------------------------------------------------------------------------------
---  
+--  convert 
+
+-- | convert to XML.
+abletonfileToXML :: ToAbletonXML a => AbletonFile a -> Maybe (AbletonFile AbletonXML)
+abletonfileToXML file =
+    case toAbletonXML $ abletonfileData file of
+        Nothing   -> Nothing
+        Just xml  -> Just $ AbletonFile
+                     {
+                        abletonfileFilePath = filepathToXML (abletondataType xml) $ abletonfileFilePath file,
+                        abletonfileData     = xml
+                     }
+
+
+-- | convert to Bin
+abletonfileToBin :: ToAbletonBin a => AbletonFile a -> Maybe (AbletonFile AbletonBin)
+abletonfileToBin file =
+    case toAbletonBin $ abletonfileData file of
+        Nothing   -> Nothing
+        Just bin  -> Just $ AbletonFile
+                     {
+                        abletonfileFilePath = filepathToBin (abletondataType bin) $ abletonfileFilePath file,
+                        abletonfileData     = bin
+                     }
+
+--------------------------------------------------------------------------------
+--  file extensions
+
+filepathToXML :: AbletonDataType -> FilePath -> FilePath
+filepathToXML datatype path = 
+    dropExtensions path <.> abletondataXMLExt datatype
+    
+filepathToBin :: AbletonDataType -> FilePath -> FilePath
+filepathToBin datatype path = 
+    dropExtensions path <.> abletondataBinExt datatype
+
 
 -- | what kind of AbletonData holds this file?
 extToAbletonData :: String -> Maybe AbletonDataType
@@ -122,11 +152,22 @@ extToAbletonData ext = case fmap C.toLower ext of -- uppercase == lowercase
 
 filepathToAbletonData :: FilePath -> Maybe AbletonDataType
 filepathToAbletonData =
-    extToAbletonData . takeExtension
+    extToAbletonData . takeExtensions . removeXML
+    where
+      removeXML []                     = []
+      removeXML ('.' : 'x':'m':'l':[]) = []
+      removeXML (a:as)                 = a : removeXML as
+      -- ^ does not convert to lower case!
 
--- | get extension from AbletonDataType
-abletondataToExt :: AbletonDataType -> String 
-abletondataToExt t = case t of 
+-- | get XML extension from AbletonDataType
+abletondataXMLExt :: AbletonDataType -> String 
+abletondataXMLExt t = 
+    abletondataXMLExt t <.> "xml"
+    
+    
+-- | get Bin extension from AbletonDataType
+abletondataBinExt :: AbletonDataType -> String 
+abletondataBinExt t = case t of 
     FileADG -> ".adg"
     FileAGR -> ".agr"
     FileADV -> ".adv"
@@ -139,8 +180,8 @@ abletondataToExt t = case t of
     FileASX -> ".asx"
     
 -- | known extensions of Ableton binary files
-abletonfilebinExts :: [String]
-abletonfilebinExts = [
+abletonfileBinExts :: [String]
+abletonfileBinExts = [
       ".adg",
       ".agr",
       ".adv",
@@ -152,15 +193,20 @@ abletonfilebinExts = [
       ".asd",
       ".asx" ]
 
+-- | known extensions of Ableton xmlary files
+abletonfileXMLExts :: [String]
+abletonfileXMLExts =
+    fmap (<.> "xml") abletonfileBinExts
+
 -- | is filepath a binary file of Ableton?
 filepathIsAbletonBin :: FilePath -> Bool
 filepathIsAbletonBin path =
-    elem (takeExtension path) abletonfilebinExts
+    elem (takeExtension path) abletonfileBinExts
 
 -- | is filepath a XML file of Ableton?
 filepathIsAbletonXML :: FilePath -> Bool
 filepathIsAbletonXML path =
-    elem (takeExtensions path) $ map (<.> ".xml") abletonfilebinExts
+    elem (takeExtension path) abletonfileXMLExts
 
 
 --------------------------------------------------------------------------------
