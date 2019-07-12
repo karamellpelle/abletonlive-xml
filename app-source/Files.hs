@@ -25,10 +25,13 @@ module Files
     -- Bin
     readAbletonFileBin,
     writeAbletonFileBin,
+    
+    findPathsWith,
 
   ) where
 
-import RIO
+import RIO.Directory
+import RIO.FilePath
 import qualified RIO.ByteString as B
 import qualified RIO.ByteString.Lazy as BL
 import qualified RIO.Char as C
@@ -42,3 +45,43 @@ import App
 --------------------------------------------------------------------------------
 --  file names
 
+--findPathsWith :: MonadUnliftIO m => (a -> m Bool) -> [FilePath] -> m [FilePath]
+-- | find files and directories based on a list of files and directories.
+--   exceptions from 'pred' will not be handled, and 'pred' should therefore probly handle exceptions itself
+--   TODO: add exception handler argument 
+findPathsWith :: (FilePath -> RIO' Bool) -> [FilePath] -> RIO' [FilePath]
+findPathsWith pred = helper ""
+    where 
+      helper dir = \ps -> case ps of 
+          []        -> pure []
+          (p:ps')    -> do
+              let path = dir </> p
+              --logInfo $ fromString $ "(p:ps') -> " ++ path
+              pathType path >>= \pt -> case pt of
+                  IsDir     -> do
+                      ps'' <- listDirectory path `catchIO` \err -> do
+                              logWarn $ fromString $ "could not read directory: " ++ show err
+                              pure []
+                      helper path ps'' >>= \qs -> fmap (qs ++) $ helper dir ps'
+                  IsFile    -> do
+                      pred path >>= \ok -> case ok of -- ^ 'pred' may throw exceptions here, but should not if the programmer reads documentation and does right
+                          False -> pure []
+                          True  -> fmap (path:) $ helper dir ps'
+                  IsNone    -> do
+                      logWarn $ fromString $ "path does not exist: " ++ path
+                      helper dir ps'
+
+
+-- | FIXME: does doesFile/DirectoryExist throw IOException?
+data PathType = IsFile | IsDir | IsNone
+pathType :: MonadUnliftIO m => FilePath -> m PathType
+pathType p = do
+    isfile <- doesFileExist p
+    isdir  <- doesDirectoryExist p
+    let pt | isfile  = IsFile
+           | isdir   = IsDir
+           | otherwise = IsNone
+    pure pt
+
+
+--readAbletonFilesXML :: [FilePath] -> 

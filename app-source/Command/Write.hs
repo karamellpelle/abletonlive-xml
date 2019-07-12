@@ -22,7 +22,6 @@ module Command.Write
     WriteArgs (..)
   ) where
 
-import RIO
 import App
 import Files
 

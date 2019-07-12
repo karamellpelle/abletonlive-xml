@@ -22,7 +22,6 @@ module Command.Pull
     PullArgs (..)
   ) where
 
-import RIO
 import App
 import Files
 

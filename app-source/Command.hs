@@ -26,7 +26,7 @@ module Command
   ) where
 
 
-import RIO
+import App
 import Command.Read
 import Command.Write
 import Command.Push

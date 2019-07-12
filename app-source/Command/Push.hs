@@ -22,7 +22,6 @@ module Command.Push
     PushArgs (..)
   ) where
 
-import RIO
 import App
 import Files
 

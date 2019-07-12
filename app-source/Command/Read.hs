@@ -22,7 +22,6 @@ module Command.Read
     ReadArgs (..)
   ) where
 
-import RIO
 import App
 import Files
 
@@ -42,11 +41,14 @@ data ReadArgs = ReadArgs
 read :: ReadArgs -> RIO' ()
 read args = do
     let paths = readargsFilePaths args
-    logInfo "files to read:"
-    mapM_ logInfo $ map fromString $ readargsFilePaths args
-    logInfo ""
-    mapM_ readFiles paths
+      
+    logInfo "found files:"
+    ps <- findPathsWith (\p -> pure True) $ paths
+    mapM_ putStrLn ps
+
     where
+      putStrLn str = 
+          logInfo $ fromString str
       readFiles path = do
           readAbletonFileXML path >>= \either -> case either of
               Left err    -> logWarn $ display err
