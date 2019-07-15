@@ -137,17 +137,17 @@ filepathToBin datatype path =
 -- | what kind of AbletonData holds this file?
 extToAbletonData :: String -> Maybe AbletonDataType
 extToAbletonData ext = case fmap C.toLower ext of -- uppercase == lowercase
-      ".adg" -> Just FileADG 
-      ".agr" -> Just FileAGR
-      ".adv" -> Just FileADV
-      ".alc" -> Just FileALC
-      ".als" -> Just FileALS
-      ".alp" -> Just FileALP
-      ".ams" -> Just FileAMS
-      ".amxd" -> Just FileAMXD
-      ".asd" -> Just FileASD
-      ".asx" -> Just FileASX
-      _     -> Nothing
+      ".adg"  -> Just DataADG
+      ".agr"  -> Just DataAGR
+      ".adv"  -> Just DataADV
+      ".alc"  -> Just DataALC
+      ".als"  -> Just DataALS
+      ".alp"  -> Just DataALP
+      ".ams"  -> Just DataAMS
+      ".amxd" -> Just DataAMXD
+      ".asd"  -> Just DataASD
+      ".asx"  -> Just DataASX
+      _       -> Nothing
 
 filepathToAbletonData :: FilePath -> Maybe AbletonDataType
 filepathToAbletonData =
@@ -167,16 +167,16 @@ abletondataXMLExt t =
 -- | get Bin extension from AbletonDataType
 abletondataBinExt :: AbletonDataType -> String 
 abletondataBinExt t = case t of 
-    FileADG -> ".adg"
-    FileAGR -> ".agr"
-    FileADV -> ".adv"
-    FileALC -> ".alc"
-    FileALS -> ".als"
-    FileALP -> ".alp"
-    FileAMS -> ".ams"
-    FileAMXD -> ".amxd"
-    FileASD -> ".asd"
-    FileASX -> ".asx"
+    DataADG -> ".adg"
+    DataAGR -> ".agr"
+    DataADV -> ".adv"
+    DataALC -> ".alc"
+    DataALS -> ".als"
+    DataALP -> ".alp"
+    DataAMS -> ".ams"
+    DataAMXD -> ".amxd"
+    DataASD -> ".asd"
+    DataASX -> ".asx"
     
 -- | known extensions of Ableton binary files
 abletonfileBinExts :: [String]

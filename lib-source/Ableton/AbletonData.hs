@@ -27,16 +27,16 @@ import RIO
 
 -- | https://help.ableton.com/hc/en-us/articles/209769625-Live-specific-file-types-adg-als-alp-
 data AbletonDataType = 
-    FileADG | -- ^ device group
-    FileAGR | -- ^ groove file. NOT GZIP XML
-    FileADV | -- ^ device preset
-    FileALC | -- ^ Live clip
-    FileALS | -- ^ Live set
-    FileALP | -- ^ Live pack. NOT GZIP XML
-    FileAMS | -- ^ meta sound
-    FileAMXD | -- ^ max for Live. NOT GZIP XML
-    FileASD | -- ^ warp analysis. NOT GZIP XML
-    FileASX   -- ^ skin file
+    DataADG | -- ^ device group
+    DataAGR | -- ^ groove file. NOT GZIP XML
+    DataADV | -- ^ device preset
+    DataALC | -- ^ Live clip
+    DataALS | -- ^ Live set
+    DataALP | -- ^ Live pack. NOT GZIP XML
+    DataAMS | -- ^ meta sound
+    DataAMXD | -- ^ max for Live. NOT GZIP XML
+    DataASD | -- ^ warp analysis. NOT GZIP XML
+    DataASX   -- ^ skin file
     deriving (Show)
     
 
