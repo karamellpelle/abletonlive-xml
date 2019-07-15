@@ -24,6 +24,7 @@ module Command.Read
 
 import App
 import Files
+import Ableton
 
 --------------------------------------------------------------------------------
 --  
@@ -42,14 +43,15 @@ read :: ReadArgs -> RIO' ()
 read args = do
     let paths = readargsFilePaths args
       
-    logInfo "found files:"
-    ps <- findPathsWith (\p -> pure True) $ paths
+    --ps <- findPathsWith (\p -> pure True) $ if null paths then ["."] else paths
+    -- find .xml files. if no filepaths given, use current directory
+    ps <- findPathsWith (\p -> pure $ filepathIsAbletonXML p) $ if null paths then ["."] else paths
     mapM_ putStrLn ps
 
     where
       putStrLn str = 
           logInfo $ fromString str
       readFiles path = do
-          readAbletonFileXML path >>= \either -> case either of
+          readAbletonFileXML path >>= \lr -> case lr of
               Left err    -> logWarn $ display err
               Right file  -> logInfo $ "successfully read '" <> fromString path <> "'"

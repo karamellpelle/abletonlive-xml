@@ -33,7 +33,7 @@ import Ableton.AbletonData
 data AbletonXML = 
     AbletonXML
     {
-        abletonxmlText :: T.Text -- TODO: RIO.Text
+        abletonxmlText :: T.Text
     }
 
 --------------------------------------------------------------------------------

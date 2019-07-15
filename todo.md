@@ -1,4 +1,5 @@
 # TODO
+* handle XML file extensions like .ext.adg.xml as .adg.xml
 * FileXXX -> DataXXX
 * peek ableton file type from xml data
 * catch exceptions from GZip.decompress

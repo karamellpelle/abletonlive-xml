@@ -16,7 +16,6 @@
 -- You should have received a copy of the GNU General Public License
 -- along with grid.  If not, see <http://www.gnu.org/licenses/>.
 --
-{-# LANGUAGE OverloadedStrings #-}
 module Ableton.AbletonFile
   (
     AbletonFile (..),
@@ -48,7 +47,7 @@ import Ableton.AbletonXML
 
 
 
--- | use GADTs?
+-- | a file with Ableton data
 data AbletonFile a = 
     AbletonFile
     {
@@ -60,24 +59,24 @@ data AbletonFile a =
 --------------------------------------------------------------------------------
 --  read write Bin
 
-readAbletonFileBin :: MonadUnliftIO m => FilePath -> m (Either Text (AbletonFile AbletonBin))
+readAbletonFileBin :: MonadUnliftIO m => FilePath -> m (Either String (AbletonFile AbletonBin))
 readAbletonFileBin path = do
     case filepathToAbletonData path of
-        Nothing -> pure $ Left $ "based on extension, file is not a AbletonFile"
+        Nothing -> pure $ Left $ "based on extension, file is not an AbletonFile"
         Just t  -> do
-            bin <- tryIO $ liftIO $ readFileBinary path
+            bin <- tryIO $ liftIO $ readFileBinary path -- try to read file as a ByteString
             case bin of
-                Left exc    -> pure $ Left $ textDisplay exc
-                Right bin   -> pure $ Right $ AbletonFile path $ AbletonBin t bin
+                Left exc    -> pure $ Left $ displayException exc
+                Right bin'  -> pure $ Right $ AbletonFile path $ AbletonBin t bin'
             
         
     
 
-writeAbletonFileBin :: MonadUnliftIO m => AbletonFile AbletonBin -> m (Either Text FilePath)
+writeAbletonFileBin :: MonadUnliftIO m => AbletonFile AbletonBin -> m (Either String FilePath)
 writeAbletonFileBin file = do
     a <- tryIO $ writeFileBinary (abletonfileFilePath file) (abletonbinData $ abletonfileData file)
     case a of
-        Left exc    -> pure $ Left $ textDisplay exc
+        Left exc    -> pure $ Left $ displayException exc
         Right _     -> pure $ Right $ abletonfileFilePath file
 --------------------------------------------------------------------------------
 --  read write XML
@@ -87,7 +86,7 @@ readAbletonFileXML path = do
     text <- tryIO $ readFileUtf8 path
     case text of
         Left exc    -> pure $ Left $ textDisplay exc
-        Right text  -> pure $ Right $ AbletonFile path $ AbletonXML text
+        Right text' -> pure $ Right $ AbletonFile path $ AbletonXML text'
     
 
 writeAbletonFileXML :: MonadUnliftIO m => AbletonFile AbletonXML -> m (Either Text FilePath)
@@ -201,22 +200,22 @@ abletonfileXMLExts =
 -- | is filepath a binary file of Ableton?
 filepathIsAbletonBin :: FilePath -> Bool
 filepathIsAbletonBin path =
-    elem (takeExtension path) abletonfileBinExts
+    elem (takeExtensions path) abletonfileBinExts
 
 -- | is filepath a XML file of Ableton?
 filepathIsAbletonXML :: FilePath -> Bool
 filepathIsAbletonXML path =
-    elem (takeExtension path) abletonfileXMLExts
+    elem (takeExtensions path) abletonfileXMLExts
 
 
 --------------------------------------------------------------------------------
 --  path operations
-
+{-
 modifyAbletonFilePath :: (FilePath -> FilePath) -> AbletonFile a -> AbletonFile a
 modifyAbletonFilePath f file =
     file { abletonfileFilePath = f $ abletonfileFilePath file }
 
-{-
+
 -- | change root folder, for example
 --
 --      changeAbletonFileRoot "xml/" "../" "xml/Packs/HiTech/Bass/CoolB.adg.xml" == "../Packs/HiTech/Bass/CoolB.adg.xml"

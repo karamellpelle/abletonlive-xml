@@ -36,6 +36,7 @@ import qualified RIO.ByteString as B
 import qualified RIO.ByteString.Lazy as BL
 import qualified RIO.Char as C
 import qualified RIO.Text as T
+import qualified RIO.List as P -- tmp
 
 import Ableton
 import App
@@ -59,16 +60,19 @@ findPathsWith pred = helper ""
               --logInfo $ fromString $ "(p:ps') -> " ++ path
               pathType path >>= \pt -> case pt of
                   IsDir     -> do
+                      --logInfo $ fromString $ "IsDir: " ++ path
                       ps'' <- listDirectory path `catchIO` \err -> do
-                              logWarn $ fromString $ "could not read directory: " ++ show err
+                              logWarn $ fromString $ "Could not read directory: " ++ show err
                               pure []
+                      --logInfo $ fromString $ "ListDir: " ++ P.concat (P.intersperse " " ps'' )
                       helper path ps'' >>= \qs -> fmap (qs ++) $ helper dir ps'
                   IsFile    -> do
+                      --logInfo $ fromString $ "IsFile: " ++ path
                       pred path >>= \ok -> case ok of -- ^ 'pred' may throw exceptions here, but should not if the programmer reads documentation and does right
-                          False -> pure []
+                          False -> helper dir ps'
                           True  -> fmap (path:) $ helper dir ps'
                   IsNone    -> do
-                      logWarn $ fromString $ "path does not exist: " ++ path
+                      logWarn $ fromString $ "Filepath does not exist: " ++ path
                       helper dir ps'
 
 
